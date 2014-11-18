@@ -1,0 +1,962 @@
+NDB ("no double blocks")
+========================
+
+
+Inhaltsverzeichnis:
+
+0. Vorrede - warum macht man kein Backup?
+1. Was ist das Paket NDB?
+2. Beispiele/Kurzanleitung
+3. Tipps
+4. Benutzung (ausfhrliche Anleitung)
+5. Limitierungen und Einschr„nkungen
+6. Technische Realisierung
+7. Bekannte Bugs
+8. Geplante Erweiterungen
+
+
+0. Vorrede - warum macht man kein Backup?
+=========================================
+
+Heutzutage weiá eigentlich jeder, wie wichtig Backups sind. Und
+sp„testens, seitdem es Viren gibt, die klammheimlich Office-Dokumente
+„ndern oder heimlich Dateien l”schen, sollte man auch wissen, daá
+man regelm„áig Backup machen muá und die alten Backups aufheben sollte,
+damit man bei schleichenden und unauff„lligen Fehlern die Chance beh„lt,
+eine funktionierende Version aus der Vergangenheit zu finden.
+
+Bei regelm„áigen Backups st”át man jedoch schnell auf ein Problem:
+Zippt man einfach jede Woche seinen Daten, dann w„chst der Platzbedarf
+der Backups schnell an. Schon nach einem Vierteljahr liegen schlieálich
+13 Zips auf der Platte bzw CD-R.
+
+Oder man legt sich ein Backupprogramm zu, das nicht nur Vollbackups, sondern
+auch differentielle oder inkrementelle Backups erstellen kann. Dann braucht
+man weniger Platz (obwohl viele Backupprogramme nicht oder nur wenig
+komprimieren), das Zurckspielen eines Backups wird aber aufwenig(er), da
+man bzw das Backupprogramm die Dateien erst aus mehreren Backups zusammen-
+suchen muá.
+
+NDB bietet fr den Hausgebrauch die Vorteile beider Verfahren und vermeidet
+die Nachteile beider Verfahren - NDB erstellt immer Vollbackups (Bequemlich-
+keit), fhrt aber intern Buch ber nderungen und speichert intern tats„ch-
+lich nur die Unterschiede der Unterschiede ab (kaum Platzverbrauch).
+
+D.h. nur das erste Backup eines Datenbestandes dauert „hnlich lange und
+braucht „hnlich viel Plattenplatz wie ein Zippen dieser Daten. Alle folgenden
+Backups werden in rasendem Tempo mit minimalem Archivzuwachs durchgefhrt,
+obwohl auch diese Vollbackups sind.
+
+
+1. Was ist das Paket NDB?
+=========================
+
+
+Die vier NDB Executables sind ein Paket zum platzsparenden Erstellen
+mehrerer Vollbackups gleicher oder „hnlicher Daten. Die Archive lassen
+sich zur Zeit unter OS/2, Win32 und Linux erstellen, betrachten und aus-
+packen.
+
+NDB bercksichtigt beim Archivieren und Entpacken die EAs von OS/2,
+die NTFS-Security unter WinNT aufw„rts und SymLinks, UID und GID
+unter Linux.
+
+NDB kann auch Dateien ber 2 GB Gr”áe sichern und wiederherstellen,
+auch unter OS/2!
+
+Ein Bild sagt mehr als tausend Worte - der Inhalt meiner Archivdatei
+bak_ecs.ndb, in die ich die Laufwerke sichere, auf denen das Betriebs-
+system OS/2 (in der Inkarnation eComStation = eCS) liegt:
+
+
+Chapter List:
+ No              Date  Files       Size     Packed Ratio                Name
+---  ----------------  -----  ---------  --------- -----  ------------------
+  0  2003-10-23 21:51   8468  412826898  209809856   49%  LW q: FP3
+                                            Arbeits-eCS FP3 auf Hauptrechner
+  1  2003-10-23 21:59   7029  320727813   34581644   89%  Wartung eCS j:
+           Wartungspartition auf Hauptrechner, frisch installiert, Fixpack 1
+  2  2003-10-28 21:22   8872  376653288   34043040   90%  SrvOld Q: eCS
+                                      eCS FP3 LW Q: auf Rechner "Server alt"
+  3  2003-10-28 22:31   7184  323455049    7490184   97%  Wartung eCS j:
+            Wartungspartition auf Hauptrechner nach Einspielen von Fixpack 3
+  4  2003-12-07 22:41   8642  413709050    1075664   99%  LW q: FP3
+                            nach Einspielen diverses Mozilla 1.4.1-Versionen
+  5  2004-01-31 10:50   8766  466151424     964516   99%  LW q: FP3
+                                                 Netz strzt beim Drucken ab
+  6  2004-01-31 15:39   8771  449503113    1459808   99%  LW q: FP3
+                  nach Einspielen von PJ29457: drucken ber Netz geht wieder
+---  ----------------  -----  ---------  --------- -----  ------------------
+                             2763026626  289424712   90%  7 chapters
+
+Man sieht sieben Vollbackups (= Chapter) mit den wichtigsten Daten auf-
+gelistet. Rechts steht der Name der Sicherung, in den Zwischenzeilen ein
+Kommentar zur Sicherung. Auff„llig ist, daá die erste Sicherung eine
+Kompressionrate „hnlich zu Zip aufweist, w„hrend die weiteren Chapter
+wesentlich besser komprimiert werden konnten.
+
+Die gesamte Archiv-Datei ist 276 MB groá und enth„lt sieben Vollbackups von
+drei verschiedenen eCS-Partitionen zweier Rechner, die zusammen 2635 MB
+umfassen. Das entspricht einer Kompressionsrate von 90%; umgekehrt gerechnet
+wrden diese 7 Vollbackups gezippt etwa 4.8 mal soviel Platz ben”tigen wie
+NDB!
+
+Und wie bei Zip kann man auf jedes File jedes Chapters einzeln zugreifen,
+da jedes Chapter die Dateien und Directories nicht als ein einziges groáes
+Image, sondern intern wirklich auch als einzelne Dateien und Directories
+gespeichert hat.
+
+Das ist der Grund fr NDB: Will ich ”fter „hnliche (oder immer
+wieder gleiche) Daten sichern, dann kann man dramatisch Platz sparen, wenn
+im Archivfile nur die Unterschiede - und die noch komprimiert - abgespeichert
+werden.
+
+Auf einem Rechner lief 122 Tagen ein n„chtliches Backup der wichtigsten
+Daten (Mails, Officedokumente) mit NDB 0.2.x, das sind heute 122 x 120 MB
+= 14.6 GB, das NDB-Archivfile belegt jedoch nur 177MB, d.h. eine Kompression
+von 98,8% (82:1), sprich, im Platzbedarf von etwa 2 Zipfiles stecken 122
+Vollbackups!
+
+Wozu braucht man mehrere Backups? Immer, wenn man auch auf „ltere Versionen
+von Dateien zurckgreifen m”chte. Oder, wenn man die Daten mehrerer Rechner
+sichern m”chte.
+
+Wann m”chte man auf „ltere Dateiversionen zurckgreifen? Immer, wenn man
+etwas ohne Risiko ausprobieren oder ver„ndern m”chte ... sei es bei der
+Software-Entwicklung, sei es beim Ver„ndern von Dateien, sei es beim
+Einspielen von Treibern, Patches, ...
+
+OS/2:
+Die einzige Schwierigkeit unter OS/2 bilden die EAs. Dank der Sourcen
+von Zip & Unzip sind die EAs implementiert, man kann deshalb mit NDB
+unter OS/2 analog zu Zip alles (bis auf ACLs) sichern.
+Als Test habe ich meine eCS-Wartungspartition gesichert, das Laufwerk
+lang formatiert und danach alle Daten wieder aus dem Archiv entpackt.
+Und - die Wartungspartion lief, als w„re nichts gewesen ...
+D.h. jedesmal, wenn ich etwas neu installieren oder konfigurieren m”chte,
+kann ich mit wenig Aufwand und wenig Plattenplatz ein Vollbackup machen.
+
+Um NDB unter OS/2 zu benutzen, braucht man die vier Executables, die zlib
+DLL (z.dll) und - bis einschlieálich 0.6.4 - die emx Runtime 0.9d.
+Ab 0.6.5 ist NDB mit dem Innotek GCC kompiliert und ben”tigt die Innotek
+Runtime, kann seitdem aber auch mit Files gr”áer als 2 GB umgehen.
+
+
+
+Win32:
+Unter Win32 gibt es keine EAs, dafr aber ganz andere Fieslichkeiten: Vom
+Betriebssystem werden fr l„ngere Dateinamen automatisch 8.3-Kurz- namen
+vergeben. Da man auf die Auswahl des 8.3-Kurznamens wenig  Einfluá (*) hat,
+werden beim Zurckspielen eines Backups unter Umst„nden andere 8.3-Kurznamen
+erzeugt. Leider wimmelt die Registry von Eintr„gen mit Kurznamen, weshalb ein
+Disaster Recovery unter Win32 irgendwie, z.B. ber eine Sektor-fr-Sektor-
+Kopie der ganzen Partition, auch diese Kurz- namen korrekt hinbekommen muá.
+Die Security Descriptors von NT/W2K/XP auf NTFS sind implementiert, d.h.
+Berechtigungen auf Dateien werden mitarchiviert und extrahiert.
+
+(*): Seit WinXP gibt es eine Funktion, mit der man ab XP auf NTFS-Laufwerken
+auch diese 8.3-Namen setzen kann. Unter allen anderen Kombinationen (Win9X,
+ME, Win2K; bzw FAT32, FAT16) kann die NDB zwar die Kurznamen sichern, aber
+nicht wiederherstellen! Ein Desaster Recovery ist somit nur fr die
+Kombination XP/NTFS m”glich. Um Fehler durch gesperrte Dateien zu vermeiden,
+muá sowohl beim Sichern wie auch beim Zurckspielen von einer bootenden XP-CD
+(eine Anleitung zum Erstellen einer solchen CD findet sich unter
+http://www.nu2.nu/pebuilder/) oder von einem zweiten XP auf einem anderen
+Laufwerk aus gearbeitet werden.
+
+Linux:
+
+Seit 0.4.2 gibt es eine Linuxversion; bisher k”nnen Files und Directories
+archiviert und implementiert werden. Die Unix spezifischen Attribute Group-
+und User-ID werden ebenso wie die spezifischen Rechte fr Owner/Group/World
+als Extradaten mitgefhrt. Seit 0.4.6 ist die Untersttzung fr symbolische
+Links eingebaut.
+
+
+Wie funktioniert NDB?
+
+NDB  zerlegt jede zu archivierende Datei in Bl”cke und kontrolliert fr
+jeden Block, ob sein Inhalt nicht schon im Archivfile enthalten ist.
+Dadurch kostet ein erneutes Backup bereits archivierter Daten viel weni-
+ger Platz, da ja nur die ge„nderten Blocke (plus einige Verwaltungsinfor-
+mationen) abgespeichert werden mssen.
+Zus„tzlich werden die Bl”cke vor dem Abspeichern ins Archivfile noch mit
+der Bibliothek zlib - das ist ein zu Zip (InfoZip, WinZip, etc) kompati-
+bles Format - komprimiert.
+
+NDB komprimiert im ersten Anlauf etwas schlechter als Zip, Rar, Arj, etc,
+da die Verwaltung der Datenbl”cke ebenfalls Platz im Archiv ben”tigt, und
+NDB immer nur einzelne Bl”cke, aber nie richtig groáe Stcke auf einmal
+komprimieren kann.
+
+Sobald aber Dateien doppelt sind, oder man einen zweiten (oder dritten,
+...) Stand seiner Daten archiviert, kehrt sich das Verh„ltnis schlagartig
+zu Gunsten von NDB um.
+
+
+
+2. Beispiele/Kurzanleitung
+==========================
+
+
+Voraussetzung ist, daá die Batchdateien (OS/2: ndbc.cmd, ndba.cmd, ndbe.cmd,
+und ndbl.cmd; Win32: ndbc.bat, ndba.bat, ndbe.bat, und ndbl.bat, Linux: Links
+oder Aliase auf alle vier Executables) irgendwo im Pfad liegen und ihrerseits
+korrekt auf die Exe-Files verweisen.
+
+Procedere im Standartfall:
+
+ndbc d:\backup\test.ndb
+	erstmaliges Anlegen der Archivdatei
+
+ndba d:\backup\test.ndb -n *.pap
+	Archivieren aller Dateien von Papyrus
+
+ndba d:\backup\test.ndb -n *.pap
+	erneutes Archivieren aller Dateien von Papyrus
+
+ndbl d:\backup\test.ndb
+	Auflisten der Chapter verschafft einen ersten šberblick
+	ber die enthaltenen Chapter
+
+ndbl d:\backup\test.ndb -c0
+	Auflisten aller archivierten Dateien aus Chapter 0
+
+ndbl d:\backup\test.ndb -c1
+	Auflisten aller archivierten Dateien aus Chapter 1
+
+ndbl d:\backup\test.ndb -c-0 -lc
+	Auflisten aller archivierten Dateien aus dem jngsten Chapter,
+	die gegenber dem vorhergehenden Chapter ver„ndert wurden
+
+ndbe d:\backup\test.ndb -c0 *
+	alle in Chapter 0 enthaltenen Dateien entpacken
+
+ndbe d:\backup\test.ndb -a *
+	alle Dateien aus allen Chaptern entpacken,
+	die Daten liegen dann unter den Pfaden
+	Chap0000, Chap0001, ...
+
+
+Ein etwas erweitertes Beispiel - die Entwicklung von NDB soll
+selbst in einer NDB-Archiv-Datei liegen:
+
+ndbc ..\projekt_ndb.ndb
+	erstmaliges Anlegen der Archivdatei
+
+ndba ..\projekt_ndb.ndb -rs -n"NDB V0.0.0" * -x *.exe *.o *.map
+	Archivieren des Anfangsstandes
+ndba ..\projekt_ndb.ndb -rs -n"NDB V0.0.1" "*" -x "*.exe" "*.o" "*.map"
+	Archivieren der ersten šberarbeitung
+
+...     u.s.w.
+
+ndba ..\projekt_ndb.ndb -rs -n"NDB V0.1.10" * -x *.exe *.o *.map
+	Archivieren des Version 0.1.10
+
+ndba ..\projekt_ndb.ndb -rs -l *.c *.h -m"Korrektur zu NDB V0.1.10"
+	einen Patch noch ins letzte Chapter aufnehmen
+
+Das NDB-Format „ndert sich:
+
+ndbe ..\projekt_ndb.ndb -a *
+	alle Chapter (mit der alten Version von ndbextract!) auspacken
+
+ndba.cmd (bzw ndba.bat) aufs neue Exe zeigen lassen
+ndb_importall.cmd (bzw .bat)
+	alle Chapter wieder einpacken
+
+
+
+3. Tipps
+========
+
+
+Tip: Ein sinnvolles automatisches Backup kann folgendermaáen aussehen:
+- Das NDB-Archivfile wird zuerst mit der Option -f<size>erzeugt. Als
+Filegr”áe fr die Data Files w„hlt man CD-Gr”áe (-f665M). (Falls man
+einen DVD-Brenner hat, kann man die Gr”áe natrlich erh”hen.)
+- NDB ist in einen Cron (Taskplaner, Scheduler) eingeh„ngt und l„uft
+jeden Tag einmal automatisch. Dank des Parameters -cf dauert das Backup
+auch nicht lange.
+- Je nach Sicherheitsbedrfnis brennt man jede Woche/jeden Monat die
+NDB-Hauptdatei und die ver„nderten sowie die neuerzeugten Data Files
+auf CD/DVD. Sobald ein neues Data File erzeugt wird, werden die „lteren
+Data Files nur noch gelesen, aber nicht mehr ver„ndert; deshalb muá man
+diese nicht erneut brennen. (Es sei denn, man traut seinen CD-Rohlingen
+nicht ;-)
+
+Tip: Seit V0.4.x kann man das Archiv in eine Steuerdatei und mehrere
+Datenfiles aufteilen. Damit kann man z.B. mehr als 2 bzw 4 GB archivieren
+oder dafr sorgen, daá die Archivdateien sicher auf CD-Rohlinge passen.
+Die Wahl, ob aufgeteilt oder alles in einer Archivdatei, hat man jedoch
+nur beim Anlegen der Archivdatei mit NDBC! Nachher kann NDB nicht mehr
+wechseln, es sei denn, man packt alle Chapter wieder aus und importiert
+sie in eine neue, mit entsprechender Aufteilung angelegte NDB-Datei.
+
+Tip: Das Archivieren kann man relativ folgenlos mit CTRL-C abbrechen,
+solange die Meldung "updating archive inventory" (erscheint nach Archi-
+vieren aller Files und vor dem ndern der Verwaltungsdaten) noch nicht
+ausgegeben wurde. Erst danach werden die Verwaltungsdaten des Archivfiles
+um das neue Chapter erweitert. Bricht man das Programm also zuvor ab, ist
+die Archivdatei zwar schon l„nger, da schon gepackten Bin„rdaten geschrie-
+en wurden; ein neuer Archivierungslauf setzt aber wieder sauber an der
+alten "Nahtstelle" an.
+
+
+
+4. Benutzung (ausfhrliche Anleitung)
+=====================================
+
+
+Zur bequemen Benutzung ist es sehr sinnvoll, sich kurze "Aliase"
+fr die Executables anzulegen. Sprich, man passe in den Batch-
+dateien ndb?.cmd (OS/2) oder ndb?.bat (Win32) den Pfad zu den
+Programmdateien an und lege sie danach in irgendein Verzeichnis,
+das im Pfad liegt (set path=.....). Unter Linux lege man sich
+geeignete Aliase oder SymLinks an. Danach kann man alle NDB-
+Programme bequem ber die Kurznamen NDBC, NDBA, NDBE und NDBL
+aufrufen.
+
+
+ndbcreate.exe
+
+erstellt eine leere Archivdatei und legt dabei die Blockgr”áe
+und die Kompressionsrate fr die Bl”cke fest
+
+
+usage: ndbcreate <archive[.ndb]> [-o] [-b<blocksize>] [-l<compressionlevel>]
+       -o:              *o*verwrite existing file without any question
+       -b<size>:        *b*lock size, must be between 1024 and 65535
+       -f<size>:        data*f*ile size, must be between 64k and 2g
+       -l<level>:       use zlib compression *l*evel <level>
+       -m"<comment>":   add co*m*ment (max. 79 chars)
+       -d<level>:       set *d*ebug level 1..9
+
+    -o
+    bergeht die Sicherheitsabfrage, falls <archive.ndb> schon existiert
+
+    -b<size>
+    legt die Blockgr”sse fr die interne Archivierung fest und
+    muá zwischen 1024 und 65535 Bytes liegen
+    Ohne Angabe von -b werden 60K als Default verwendet
+    Allgemein: Je gr”áer die Blockgr”áe, desto weniger interner
+    Verwaltungsaufwand und desto bessere Kompression.
+
+    -f<size>
+    NEU: erst ab NDB V0.4.x.
+    Das Archiv wird in eine Steuerdatei (mit den Meta- und Verwaltungs-
+    informationen) und mehrere Datendateien (komprimierte Bin„rdaten)
+    aufgespalten. Damit l„át sich die Beschr„nkung auf 2 bzw 4 GB
+    maximale Archivgr”áe umgehen.
+    Mit "-f<size>" legt man fest, wie groá eine Datendatei maximal
+    werden darf, bevor NDB eine neue anlegen soll. <size> kann eine
+    Zahl, wahlweise gefolgt von 'k' (KBytes) oder 'm' (MBytes) sein.
+    Sinnvoll w„re z.B. -f650m fr Dateien, die auf CD gebrannt werden
+    sollen. Das andere Extrem w„re z.B. -f1440k, damit kann man die
+    Archive auf Diskette kopieren. ;-)
+
+    -l<level>
+    legt die Kompression zwischen 0 (keine) bis 9 (maximal) fest,
+    Ohne Angabe von -l wird 7 als Default verwendet
+    Bei zunehmender Kompression wird zunehmend mehr CPU-Zeit be-
+    n”tigt, w„hrend der Kompressionsgewinn zunehmend kleiner wird,
+    daher ist der Default nicht 9, sondern 7.
+
+    -m"<comment>"
+    fgt dem Archiv einen Kommentar zu
+
+    -d<level>
+    Debug-Level auf 1 bis 9 setzen
+        ab 1 zus„tzliche, "allgemeine" Informationen
+        ab 2 weitere zus„tzliche, "allgemeine" Informationen
+        ab 3 wird es technisch, d.h. erste Funktionsnamen werden sichtbar
+        ab 5 melden sich die meisten Funktionen mit "startup" und "finished",
+             ausgenommen kleinere Funktionen, die innerhalb Schleifen sehr
+             oft aufgerufen werden
+        ab 6 praktisch alle
+        ab 7 alle, Ausgabe vieler Strukturen von Chaptern, Files und Block
+             Headern
+        ab 8 zus„tzliche Ausgabe der gelesenen und geschriebenen Bytes fr
+             obige Strukturen
+        ab 9 zus„tzlich Dump der ungezippten und gezippten Bin„rdaten
+
+        Bei Level 3/5/7/9 steigt die Ausgabemenge jeweils deutlich an,
+        ab 7 kann das Log wirklich *sehr* groá werden
+
+
+
+ndbarchive.exe
+
+archiviert die gem„á Filemaske ausgew„hlten Files im NDB-Archivfile
+Die NDB-Archivdatei muá bereits existieren, da sie von ndbarchive.exe
+nicht angelegt wird.
+
+
+usage:
+ndbarchive <archiv> -n<name> [options] [-d<level>] [-w<millis>] <files>
+                    [-x|i <files>] [-i@<file>] [-x@<file>]
+    List of all parameters and options:
+    -h:           this help text
+    <archiv>:     name of NDB archive file
+    <files>:      filename(s), wildcards are * and ?
+                  (use double quotes for unix)
+    -n[<"name">]: create a *n*ew chapter with name <"name">
+    -l:           add files to *l*ast chapter
+    -r:           *r*ecurse into subdirectories (don't archive empty dirs)
+    -R:           like -r, archive empty dirs also
+    -s:           add hidden and *s*ystem files
+    -cx:          *c*ompare files e*x*actly (default)
+                  (slowest speed, exact test)
+    -cm:          *c*ompare files by their *m*d5
+                  (medium speed, exact test)
+    -cc:          *c*ompare files by their block *c*rcs
+                  (faster than -cm, but risk of 1:4294967296
+                   to miss a change in the file)
+    -cf:          *c*ompare files *f*ast
+                  (lightning speed, exact test if all OS conform)
+    -X:           ignore e*X*tra data (e.g. OS/2 EAs)
+    -x <files>:   e*x*clude following files
+    -i <files>:   *i*nclude following files
+    -x@<file>:    e*x*clude file(mask)s listed in <file>
+    -i@<file>:    *i*nclude file(mask)s listed in <file>
+    -t<yyyymmddhhmmss>  set chapter creation *t*ime
+    -m<text>:     add a co*m*ment (max 79 chars) for this chapter
+    -d<level>:    set *d*ebug level 1..9
+    -w<millis>:   *w*ait <millis> milliseconds after each file
+
+
+    <archiv>
+    	Dateiname des NDB-Archivfiles; wenn es nicht mit ".ndb" endet,
+    	wird ".ndb" angeh„ngt
+
+    <files>
+    	Filemasken, als Wildcards werden * and ? akzeptiert;
+		falls ein existierendes Directory - ohne Wildcards - angegeben
+		wird, wird automatisch "\*" angeh„ngt;
+		falls eine existierende Datei - ohne Wildcards - angegeben
+		wird, werden die Flags '-r' oder '-R' fr diese Angabe ignoriert
+    	[Linux: Masken mit Wildcards mssen mit " umschlossen werden,
+    	damit die Shell auáen vor bleibt]
+
+    -n[<"name">]
+    	fr die zu archiverenden Daten wird ein neues Chapter erzeugt;
+            wenn kein Name angegeben wird, wird als Default
+            "BAK YYYY-MM-DD hh:mm" (mit echten Zeiten ;-) verwendet
+
+    -l
+    	mit Vorsicht zu genieáen, da wenig getestet: fgt die zu archi-
+    	vierenden Files dem letzten existierenden Chapter an, d.h. man
+    	kann einen "groáen" Archivierungsvorgang auf mehrere Aufrufe
+    	verteilen
+
+    -r
+    	rekursiv Unterverzeichnisse archiveren und durchsuchen; ohne
+    	diese Flag werden keine Directories archiviert, mit rekursiv
+    	alle, auch wenn keine Dateien enthalten sind.
+    	Leere Directories werden bei -r nicht mitarchiviert
+
+    -R
+        wie -r, nur, daá auch leere Directories archiviert werden
+
+    -s
+    	Dateien mit dem "Hidden"- und "System"-Flag archivieren
+
+    -c
+    	-cx: Default: zu archiverende Dateien werden immer bin„r mit den
+    	     Inhalten des Archivs verglichen;
+    	     -> sicher, aber langsam
+    	-cf: wenn im *vorigen* Chapter eine Datei mit dem gleichen Pfad und
+    	     Namen gefunden wurde, die den gleichen Zeitstempel fr Erzeu-
+    	     gung und letzte Ver„nderung, gleiche Dateigr”áe und gleiche
+    	     Flags (System, Hidden, Dir) besitzt, dann wird angenommen,
+    	     daá beide Dateien identisch sind, und die Zeiger auf den
+    	     Dateiinhalt werden fr die neue Datei lediglich kopiert
+    	     -> viel schneller, "b”swillige" Ver„nderungen unter Umgehung
+    	     der blichen Betriebssystemmechanismen (z.B. mit Festplatten-
+    	     editor) fallen aber unter den Tisch
+    	-cc: fr jede zu archivierende Datei werden die CRC32-Werte ihrer
+    	     Bl”cke erzeugt und mit denen der gleichnamigen Datei des
+    	     vorhergehenden Chapters verglichen; sind die Dateil„ngen
+    	     und alle Block-CRCs gleich, dann wird angenommen, daá beide
+    	     Dateien identisch sind, und die Zeiger auf den Dateiinhalt
+    	     werden fr die neue Datei lediglich kopiert
+    	     -> schneller als -cx, deutlich langsamer als -cf; mit einem
+    	     Risiko von 1 : 4.294.967.296 wird eine Blockver„nderung nicht
+    	     erkannt!
+    	-cm: fr jede zu archivierende Datei wird ihr MD5-Wert ermittelt
+    	     und mit dem der gleichnamigen Datei des vorhergehenden Chapters
+    	     verglichen; sind die Dateil„ngen und der MD5 gleich, dann wird
+    	     angenommen, daá beide Dateien identisch sind, und die Zeiger
+    	     auf den Dateiinhalt werden fr die neue Datei lediglich kopiert
+    	     -> schneller als -cx, etwas langsamer als -cc, deutlich lang-
+    	     samer als -cf
+
+    -X
+    	"Extra"-Daten (wie z.B. die EAs von OS/2) werden nicht mitarchi-
+    	viert; normalerweise werden sie mitgenommen.
+
+    -y  (nur Unix, erst ab 0.4.6) normalerweise sichert NDB nicht die Links,
+        sondern die Dateien, auf die die Links zeigen. Mit dieser Option
+        sichert NDB den symbolischen Link als Link.
+
+    -x
+    	damit kann man Filemaske angeben, die nicht archiviert werden
+    	sollen
+
+    -i
+    	damit kann man nach "-x" wieder Filemasken angeben, die archiviert
+    	werden sollen
+
+    -x@<file>
+    	<file> muá eine Liste von Filemasken enthalten, jede in einer
+    	eigenen Zeile; alle Filemasken werden in die Liste der auszu-
+    	schlieáenden Dateimuster aufgenommen
+
+    -i@<file>
+    	<file> muá eine Liste von Filemasken enthalten, jede in einer
+    	eigenen Zeile; alle Filemasken werden in die Liste der zu
+    	archivierenden Dateimuster aufgenommen
+
+    -t<yyyymmddhhmmss>
+    	internes Kommando fr den Import alter NDB-Inhalte
+    	(siehe ndbextract.exe -a)
+    	damit kann man den Zeitstempel fr das Erzeugungsdatum des Chapters
+    	vorgeben; ntzlich, wenn man Chapter entpackt hat und sie in eine
+    	neue Archivdatei mit dem alten Zeitstempel importieren will
+
+    -m<text>
+    	jedem Chapter kann man einen Kommentar mitgeben
+
+    -d<level>
+    	Debug-Levels wie unter ndbcreate.exe
+
+    -w<millis>
+    	nach Archivieren jedes einzelnen Files wird <millis> Millisekunden
+    	gewartet
+    	Da Archivieren und Extrahieren sehr viel I/O beansprucht, ist der
+    	Rechner in dieser Zeit nahezu unbenutzbar. Wenn man ber Netz
+    	archiviert bzw extrahiert ebenso. Durch die Angabe von z.B. -w200
+    	wird nach jeder Datei 200 ms gewartet, was anderen Prozessen - oder
+    	dem Benutzer - eine Chance gibt
+
+
+
+ndbextract.exe
+
+entpackt Dateien aus dem Archivcontainer in Abh„ngigkeit verschiedener
+Optionen. Falls dabei eine Datei berschrieben werden wrde, fragt NDB
+nach, was geschehen soll. (Durch -o kann šberschreiben als Default fest-
+gelegt werden.)
+
+
+usage:
+ndbextract <archiv> [options] -a|-c<number> <files>
+    List of all parameters and options:
+    -h:               this help text
+    <archiv>:         name of NDB archive file
+    <files>:          filename(s), wildcards are * and ?
+                      (use double quotes for unix)
+    -a[<from>-<to>]:  extract *a*ll chapters (restrict to <from> - <to>)
+    -em:              *e*xtract only 'm'odified files
+    -c<number>:       extract content from *c*hapter <number>
+    -R:               *r*ecursivly extract empty dirs also
+    -o:               *o*verwrite existing files without any question
+      -oa:            overwrite *a*ll existing files
+      -on:            overwrite *n*o existing files
+      -om:            overwrite *m*odified files only
+    -x:               e*x*clude following files
+    -i:               *i*nclude following files
+    -x@<file>:        e*x*clude file(mask)s listed in <file>
+    -i@<file>:        *i*nclude file(mask)s listed in <file>
+    -t:               *t*est archiv integrity (no extraction)
+    -X:               ignore e*X*tra data (e.g. OS/2 EAs)
+    -p<path>:         extract to <path>, not to current dir
+    -d<level>:        set *d*ebug level 1..9
+    -w<millis>:       *w*ait <millis> milliseconds after each file
+
+
+    <archiv>
+    	Dateiname des NDB-Archivfiles; wenn es nicht mit ".ndb" endet,
+    	wird ".ndb" angeh„ngt
+
+    <files>
+    	Filemasken, als Wildcards werden * and ? akzeptiert;
+		falls ein existierendes Directory - ohne Wildcards - angegeben
+		wird, wird automatisch "\*" angeh„ngt;
+		falls eine existierende Datei - ohne Wildcards - angegeben
+		wird, werden die Flags '-r' oder '-R' fr diese Angabe ignoriert
+    	[Linux: Masken mit Wildcards mssen mit " umschlossen werden,
+    	damit die Shell auáen vor bleibt]
+
+    -c<nummer>
+        entpackt die Dateien <files> aus dem Chapter <nummer>. Beim Entpacken
+        wird geprft, ob die neue Datei (und alle ihre Bl”cke) in Gr”áe und CRC
+        den gespeicherten Werten der Originadatei entsprechen.
+        Ein Schmankerl: -c-<number> z„hlt rckw„rts, d.h. -c-0 ergibt
+        den neuesten Chapter.
+
+    -a
+        entpackt alle Chapter in Ordner 'chap<nummer>' und erzeugt zus„tz-
+        lich eine Batchdatei (ndb_importall.cmd|.bat), die diesen Vorgang
+        "umkehrt", d.h. eine neue NDB-Datei gleichen Namens erzeugt und die
+        Inhalte aller ausgepackten Ordner 'chap<nummer>' wieder archiviert.
+        Der Chaptertitel und das Chapterdatum werden auf die ursprnglichen
+        Werte gesetzt. (Verloren gehen zur Zeit die Eintr„ge im Chapter,
+        unter welchem OS und mit welcher NDB-Version das Chapter ursprng-
+        lich erstellt wurde.)
+        Da das Entpacken aller Chapter sehr speicherplatzaufwendig sein kann,
+        ist es auch m”glich, nur einen Teil der Chapter zu entpacken. Erlaubt
+        sind -a<von>-<bis> oder -a<von>- oder -a-<bis>
+
+    -em
+        damit werden nur Dateien entpackt, die sich gegenber den vorherigen
+        Chaptern ge„ndert haben
+
+	-R
+		Damit werden, unabh„ngig von der Filemaske, auch alle (!) Directory-
+		Eintr„ge wiederhergestellt, d.h. es wird die komplette Verzeichnis-
+		struktur, die ins Chapter eingepackt wurde, wieder komplett herge-
+		stellt. Wieviel Dateien darin wiederhergestellt werden, bestimmt man
+		ber die Filemaske(n).
+		Eine M”glichkeit, selektiv bestimmte, leere Directories wieder zu er-
+		zeugen, gibt es zur Zeit nicht.
+
+    -o
+        normalerweise fragt NDB beim Entpacken nach, falls schon eine Datei mit
+        gleichem Namen im entsprechenden Directory existiert. Diese Abfrage ala
+        "Overwrite it: (y)es, (n)o, (A)ll, (N)one?" kann mit -o (wie overwrite)
+        vorab auf "(A)ll" festgelegt werden.
+    -oa
+        wie '-o'; jede Datei wird entpackt, unabh„ngig davon, ob es ein File
+        auf der Festplatte schon gibt oder nicht
+    -on
+        mit '-on' wird "(N)one" als Standart gew„hlt; jede Datei, die bereits
+        auf Festplatte existiert, wird nicht entpackt
+    -om
+        mit '-om' wird "(M)odified only" als Standart ausgew„hlt;
+        es werden nur fehlende und ver„nderte Dateien - NDB prft auf
+        Filegr”áe, Fileattribute, Erzeugungsdatum und Datum der letzten
+        Anderung - aus dem Archiv entpackt bzw berschrieben;
+        das geht deutlich schneller als das Entpacken aller Dateien
+
+    -x
+        schlieát analog zu ndbarchive.exe Dateien vom Entpacken aus
+
+    -i
+       	damit kann man nach "-x" wieder Filemasken angeben, die entpackt
+       	werden sollen
+
+    -x@<file>
+    	<file> muá eine Liste von Filemasken enthalten, jede in einer
+    	eigenen Zeile; alle Filemasken werden in die Liste der auszu-
+    	schlieáenden Dateimuster aufgenommen
+
+    -i@<file>
+    	<file> muá eine Liste von Filemasken enthalten, jede in einer
+    	eigenen Zeile; alle Filemasken werden in die Liste der zu
+    	entpackenden Dateimuster aufgenommen
+
+    -X
+        verhindert das Extrahieren der Extradaten, d.h. unter OS/2 werden
+        keine EAs und unter NT/W2K/XP werden keine Security Deskriptoren
+        entpackt.
+
+    -p<path>:
+        entpackt die Dateien und Directories nicht ins aktuelle Verzeichnis,
+        sondern im angegebenen Pfad
+
+    -t
+        damit wird ein Archiv getestet - NDB entpackt die per Filemaske aus-
+        gew„hlten Dateien, schreibt sie aber nicht auf Festplatte. Wenn ein
+        Block nach dem Entpacken eine falsche CRC-Summe oder eine falsche
+        Anzahl Bytes ergibt, wird eine entsprechende Fehlermeldung ausgegeben.
+        Analog wird gemeldet, falls die Datei als ganzen nicht dem CRC-Wert
+        bzw der L„nge der Originaldatei entspricht.
+
+    -d<level>
+    	Debug-Levels wie unter ndbcreate.exe
+
+    -w<millis>
+    	nach Entpacken jedes einzelnen Files wird <millis> Millisekunden
+    	gewartet (Bandbreitenschonung, siehe Beschreibung unter ndbarchive)
+
+
+
+ndblist.exe
+
+listet die Chapter oder die in einem Chapter enthaltenen Files aus dem
+Archivcontainer auf.
+
+
+usage: ndblist <container> [-c<number>] [-l<x>] [-d<level>] [file mask]
+       -c<number>:  list content from *c*hapter <number> <name>
+       -l<..>:      *l*ist level:
+         s:         *s*hort output (only chapter without -c<nr>)
+         m:         *m*edium output (only chapter without -c<nr>) [default]
+         l:         *l*ong output (only chapter without -c<nr>)
+         c:         show *c*hanged files only
+         a:         show chapter *a*llocations
+         h:         show file *h*ash and name
+         r:         *r*aw mode (usable for other programs)
+         b:         show *b*lock list for each file (debugging)
+       -d<level>:   set *d*ebug level 1..9
+
+    <filemask>
+        alle Files, auf die die Maske <filemask> paát, werden ausgegeben;
+        mit -c<number> kann man die Ausgabe auf ein Chapter beschr„nken,
+        andernfalls werden alle Chapter durchgegangen und deren passende
+        Files ausgegeben
+
+    -c<number>
+        listet den Inhalt von Chapter <number>; ohne -c<number> wird
+        eine tabellarische šbersicht aller Chapter ausgegeben.
+        Ein Schmankerl: -c-<number> z„hlt rckw„rts, d.h. -c-0 ergibt
+        den neuesten Chapter.
+
+    -l<..>
+        damit legt man fest, was in welcher Ausfhrlichkeit gelistet wird
+        -lm
+            Defaulteinstellung - alle Files des angegebenen Chapters werden
+            („hnlich wie bei unzip -v ...) aufgelistet; Extradaten werden
+            nicht ausgegeben;
+            ohne -c<number> werden alle Chapter tabellarisch aufgelistet;
+            falls der Chapter einen Kommentar hat, wird dieser in einer
+            zweiten Zeile ausgegeben
+        -ls
+            ohne -c<number> und ohne <filemask> werden die Chapter tabella-
+            risch ausgegeben;
+            ohne -c<number>, mit <filemask> werden die Files aller Chapter
+            tabellarisch ausgegeben, das Chapter wird nur als vierstellige
+            Nummer am Anfang jeder Filezeile ausgegeben; keine Angaben
+            zu Extradaten;
+        -ll
+            „hnlich -lm, jeder Extraheader wird als zus„tzliche Zeile ausge-
+            geben;
+            ohne -c<number> werden alle Chapter in zwei bis drei Zeilen
+            tabellarisch aufgelistet
+        -lc
+            listet nur die Dateien, die sich gegenber dem vorhergehenden
+            Chapter ver„ndert haben; in Kombination mit -ls und <filemask>
+            bekommt man einen sch”nen šberblick, in welchen Chaptern sich
+            die Dateien zu <filemask> ge„ndert haben
+        -lh
+            listet den Hashwert (CRC32 bis 0.5.x, MD5 ab 0.6.x) und den
+            Filenamen
+        -la
+            tabellarische Ausgabe der Speichergr”áen von Bin„rdaten, Block-
+            verwaltungsdaten und Fileverwaltungsdaten pro Chapter
+        -lb
+            gibt fr jede Datei eines Chapters die vollst„ndige Block-Liste
+            mit Blocknummer, Status (Neu/Identisch), Typ (Filedaten, Extra-
+            daten), CRC, originale und gepackte L„nge, die Nummer des dazu-
+            geh”rigen Data Files und die Position innerhalb des Data Files
+            und schlieálich noch den Typ der Extradaten aus
+        -lr
+            Ausgabe in einem speziellen Raw-Format, das maschinell leichter
+            zu parsen ist als die normale, fr Menschen gedachte Ausgabe.
+            Ntzlich fr externe Programme (wie z.B. GUI-Aufsatz auf NDB),
+            die etwas ber den Inhalt einer NDB-Archivdatei wissen mssen.
+            Dokumentation zur Zeit nur im Sourcecode.
+
+    -d<level>
+       	Debug-Levels wie unter ndbcreate.exe
+
+
+
+5. Limitierungen und Einschr„nkungen
+====================================
+
+
+Die NDB-Programme sind mit den blichen C-Funktionen entwickelt,
+daraus resultieren die blichen Einschr„nkungen des 32-Bit-Adreá-
+raumes:
+
+- nicht mehr als 4 Milliarden Files pro Chapter archivierbar
+
+bis V0.5.x:
+- alle OS: Files ber 2 GB nicht archivierbar
+ab V0.6.2:
+- Win32 & Linux: auch Files ber 2 GB archivierbar
+ab V0.6.5:
+- OS/2: auch Files ber 2 GB archivierbar
+
+bis V0.3.x:
+- alle OS: max 2 GB Archivdatei-Gr”áe
+ab V0.4.x:
+- alle OS: max 2 GB Archivdatei-Gr”áe, zus„tzlich bis 65535 Datendateien
+- die Datendateien k”nnen ihrerseits bis maximal 2 GB groá werden
+
+bis V0.3.x:
+- die Originalgr”áe aller in einem Chapter archivierten Dateien
+  darf 4 GB bersteigen, solange die Summe der gezippten Dateien
+  unter 2 GB bleibt
+ab V0.4.x:
+- die Original- und die Archivgr”áe aller in einem Chapter gezippten
+  Dateien drfen 4/2 GB bersteigen
+
+Zur Zeit sind die Codepages
+- iso8859-1
+- iso8859-15
+- us-ascii
+- cp437
+- cp850
+- cp1004 (eingeschr„nkt, da intern cp1252 verwendet wird)
+- cp1252
+- utf-8
+eingebaut.
+
+Bei unbekannter Codepage speichert ndbarchive.exe den Dateinamen
+unkonvertiert ab und setzt in den Dateiattributen ein entsprechendes
+Flag. ndbextract unterl„át beim Entpacken dann eine Rckwandlung und
+erzeugt den Dateinamen so wie gespeichert.
+
+
+6. Technische Realisierung
+==========================
+
+
+Aufbau Archivdatei:
+
+- Archiv-Chunk (Struktur ndb_s_c_archive)
+- Chapter 0 (Chapter Chunk, Bin„rdaten, Blockheaderliste, Fileliste,
+             ggfs Datenfilesliste)
+- Chapter 1 (Chapter Chunk, Bin„rdaten, Blockheaderliste, Fileliste,
+             ggfs Datenfilesliste)
+- Chapter 2 (Chapter Chunk, Bin„rdaten, Blockheaderliste, Fileliste,
+             ggfs Datenfilesliste)
+- ...
+- Chapter n (Chapter Chunk, Bin„rdaten, Blockheaderliste, Fileliste,
+             ggfs Datenfilesliste)
+
+Aufbau Chapter:
+
+- Chapter Chunk (Struktur ndb_s_c_chapter)
+- Bin„rdaten Chunk (Struktur ndb_s_c_block)
+- Bin„rdaten (m gezippte Datenbl”cke)
+- Blockheader Chunk (Struktur ndb_s_c_block)
+- m Blockheader (Struktur ndb_s_blockheader)
+- Fileentry Chunk (Struktur ndb_s_c_block)
+- n Fileentries (Struktur ndb_s_fileentry)
+- 0..o Datenfileheader (Struktur ndb_s_datafileheader)
+
+
+Speicherung in Bl”cken:
+
+Jede Datei wird in Bl”cke fester L„nge (Festlegung bei ndbcreate.exe)
+zerlegt. Zu jedem Block wird der CRC32-Wert berechnet und in einer
+Hash-Tabelle abgelegt. Jeder Block wird gezippt und ggfs im Archivfile
+abgespeichert.
+
+Bevor ein Block im Archivfile abgespeichert wird, wird in der Hashtabelle
+nach Bl”cken mit dem gleichen CRC32-Wert gesucht. Wird einer gefunden,
+der in den sonstigen Daten (Originall„nge, gezippte L„nge) bereinstimmt,
+wird er aus dem Archivfile eingelesen und Byte fr Byte mit dem neuen
+verglichen. Nur, wenn Unterschiede auftreten, muá der neue Block gespei-
+chert werden, ansonsten wird in die Blockliste der gerade zu packenden
+Datei ein Verweis auf den bereits archivierten alten Block eingetragen.
+
+Vorteil des Verfahrens ist, daá gleiche Dateien bzw Dateiteile, die gleich
+sind, beim Abspeichern lediglich den Platz fr die Verwaltungsdaten (ein
+Block hat 28 Bytes Verwaltungsinformation) ben”tigen, was eine sehr hohe
+Kompressionsrate ergeben kann.
+
+Nachteil des Verfahrens ist, daá die Zerlegung und Verwaltung der Block-
+daten mehr CPU kostet, und die Kompressionsrate leicht sinkt (fr kleine
+Bl”cke st„rker).
+
+Konsequenz daraus ist, m”glichst groáe Bl”cke zu verwenden, einerseits,
+um Verwaltungsarbeit (CPU-Last) zu verringern, zum anderen, um beim
+Zippen der Bl”cke vernnftige Kompressionsraten zu erm”glichen. Im
+Interface von ndbcreate sind 1024 Bytes als Untergrenze hartcodiert.
+Sinnvoll wird es eigentlich erst ab Vielfachen von 4096 Bytes, da darunter
+der Laufzeit und auch die Archivgr”áe durch die vielen Verwaltungsdaten
+heftig ansteigen. Der Default bei ndbcreate ist 60K als Blockgr”áe.
+
+
+Abspeicherung der Datei-Metadaten:
+
+Um Archivdateien OS- und codepage-unabh„ngig handhaben zu k”nnen, wird
+ein grundlegendes Subset an Metadaten in der Struktur ndb_s_fileentry
+gehalten. OS-spezifische Daten (wie OS/2-EAs oder NTFS-Security) werden
+in die "Extradaten" ausgelagert. Um unabh„ngig von der Codepage zu sein,
+werden die Filenamen in UTF8 umgewandelt und ins Archivfile gespeichert.
+Daraus resultieren zwei Einschr„nkungen - wenn NDB die Codepage des
+Systems nicht kennt, kann der Filename nur unkonvertiert gespeichert
+werden, und wenn beim Entpacken die aktuelle Codepage einen UTF8-Wert
+nicht kennt, kann die Datei nicht korrekt benannt werden, sondern enth„lt
+die UTF-8-Zeichen ber 127 als Hexcode.
+
+
+Speicherbedarf im Archivfile:
+
+Der Chapter selbst belegt mit seinen Chunks etwa 300 bis 400 Bytes.
+
+Eine FileEntry-Struktur belegt 46 Bytes plus die Bytes fr den Filenamen,
+eine BlockHeader-Struktur hat 28 Bytes, d.h. ein durchschnittlich kompri-
+mierbares File (ca 50%) mit einer Gr”áe von 1 MB und einem Namen mit 40
+Zeichen belegt ca 500KB an gepackten Daten und etwa 565 Bytes an Verwal-
+tungsinformationen. (Wird dieses File unver„ndert in einem sp„teren Chapter
+wieder archiviert, fallen nur noch diese 565 Bytes an Verwaltungsinformation
+an.)
+
+Speicherbedarf im Hauptspeicher:
+
+NDB braucht zum Archivieren oder Entpacken relativ viel Speicher, da es
+alle Verwaltungsdaten plus die notwendigen Verzeigerungen, Hilfslisten
+und Hashtabellen gleichzeitig komplett im Speicher halten muá.
+
+Fr das WINNT-Verzeichnis von W2K SP4 (8.237 Files, 185 Dirs, 973 MB)
+wurden knapp 7MB Hauptspeicher ben”tigt, d.h. durchschnittlich 860 Byte
+pro Datei/Dir.
+Auf Platte wurden zus„tzlich zu den 394 MB gepackte Filedaten 1.2 MB Ver-
+waltungsdaten ben”tigt, d.h. pro File/Dir durchschnittlich etwa 150 Bytes.
+
+
+7. Bekannte Bugs
+================
+
+alle OS: NDB geht beim Entpacken von Daten immer davon aus, daá das
+Filesystem alles untersttzt, was im Archiv gespeichert ist und zum
+aktiven OS geh”rt, z.B. lange Namen, EAs, NTFS Security.
+
+Filenamen werden beim Entpacken nicht auf - fr das aktuelle - Filesystem
+ungltige Zeichen untersucht. (Unterschiedliche Filesysteme erlauben
+unterschiedliche Zeichen fr Filenamen.)
+
+Keine Bercksichtigung von Sommer- und Winterzeit bzw verschiedenen
+Zeitzonen.
+
+Die Filenamen der Data Files werden noch nicht in Unicode gespeichert,
+d.h. beim Verschieben auf andere Systeme mit anderen Codepages werden
+die Data Files unter Umstanden nicht erkannt.
+Workaround: Den Dateinamen des NDB-Archivfiles auf den ASCII-Zeichensatz
+beschr„nken.
+
+Keine Unterscheidung zwischen NTFS, FAT32 und VFat.
+
+Allgemein: NDB ist relativ defensiv programmiert, dennoch haben z.B.
+zip & unzip noch wesentlich mehr Tests und Rettungsringe.
+
+
+8. Geplante Erweiterungen
+=========================
+
+Grafische Oberfl„che zum Klicken:
+
+erste Anf„nge (in Java mit Swing) existieren - simple Oberfl„che im
+Explorerstil zum Browsen durch ein Archivfile; sprich, Zwei-Fenster-Ansicht,
+links Baum, rechts Details zum links selektierten Objekt. Archiv ”ffnen ->
+Liste der Chapter, Chapter ”ffnen -> Liste der Files.
+
+Weitere Codepages einbauen.
+
+M”glichkeit, beim Aufruf eine Datei mit Codepage-Daten zu bergeben.
+
+
+Irgendwann vielleicht:
+
+weiteres Executable ndbmaint.exe zum Manipulieren des NDB-Archivs,
+d.h. Chapter abschneiden und Werte eines Chapter (z.B. Name, Kommentar)
+nachtr„glich „ndern
+

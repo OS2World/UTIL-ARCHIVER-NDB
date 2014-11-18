@@ -1,0 +1,15 @@
+NDB - No Double Blocks V0.6.5
+
+Archiver for OS/2, Win32 and Linux (GPL),
+handles files over 2GB under OS/2, Linux and
+Win32 also.
+
+NDB is a commandline backup utility similar to zip.
+
+NDB archives up to 65535 full backups with the costs
+(size and time) of incremental backups within one
+archive file.
+
+NDB saves OS/2 EAs, NTFS Security and Unix specifics.
+
+The documentation is mostly in german language.

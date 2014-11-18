@@ -1,0 +1,874 @@
+NDB - HISTORY
+
+
+Done (08-Sep-2004)
+==================
+
+0.6.5 (25-Sep-2004)
+- OS/2: Kompilierbarkeit unter EMX/GCC und Watcom sicher-
+gestellt
+0.6.5w6 (16-Sep-2004)
+- ndbc: maximale Blockgrî·e auf 60K begrenzt; falls die zlib
+bereits gepackte Daten vergî·ert, stehen noch 4K Reserve zur
+VerfÅgung, bevor die 16Bit-LÑngenvariablen Åberlaufen
+- ndba/ndbe/ndb_dffuncs.c: maximale Zahl an gleichzeitig genutz-
+ten Filehandles einstellbar, Default 50, fÅr OS/2 25
+0.6.5w5 (01-Sep-2004)
+- ndbl: Summary-Ausgabe am Ende von 'x Files' auf
+'x = y Dirs + z Files' geÑndert
+- ndba: Filematching leicht geÑndert, damit bei Filemasken
+wie '-r abc*' auch Elemente der obersten Directoryebene
+erkannt werden
+- ndb_allocrout.c: weitere Fehler entdeckt und behoben
+Speicherverbrauch senken:
+- ndba: aus Filemaske(n) erstellte Fileliste wird gleich StÅck
+fÅr StÅck in das Chapter transferiert (Files mit Fehlern in
+zusÑtzliche Fehlerliste kopieren)
+-> spart bei c:\winnt fast 25% (9.5 MB statt 12.7 MB)
+0.6.5w4 (30-Aug-2004)
+Speicherverbrauch senken
+- ndba: Exclude-Mechanismus fÅr Filemasken geÑndert,
+da· beim Aufbau der Fileliste sofort mit den Excludemasken
+ausgefiltert wird, d.h. auszuschlie·ende Files werden gar
+nicht erst in die Liste aufgenommen
+- ndb_allocrout.c: Compile Warnings beseitigt, Debugging und
+Ausbau der Meldungen, neue Funktion zeigt Zeigerzahl und
+Gesamtspeicherverbrauch an
+- ndb_iofuncs_ext.c: Zahl der Allocs und Frees drastisch
+reduziert
+0.6.5w3 (18-Aug-2004)
+Speicherverbrauch senken, ..alloc() vermeiden, damit Speicher-
+verwaltung weniger belastet wird:
+- alle Exe: #pragma pack(1), Strukturen ohne Padding Bytes
+sparen Speicher (verbrauchen etwas Permormance)
+- ndb_utf8.c: in beiden Konvertierungsfunktionen ersten calloc()
+durch Zugriff auf festen Puffer ersetzen, statt realloc() am
+Ende calloc() mit bekannter Grî·e und konvertierten Namen
+hineinkopieren
+- ndb_osdep_matchFilename(): beide calloc() durch feste Puffer
+ersetzt
+0.6.5w2 (15-Aug-2004)
+- zusÑtzliche Checks und Debugausgaben im Umfeld ndb_utf8.c
+0.6.5w1 (11-Jul-2004)
+- NEW: OS/2: Source wird jetzt mit dem Innotek GCC kompiliert,
+damit unterstÅtzt auch die OS/2-Version Dateien Åber 2 GB!
+- CHG: Source-Archiv umorganisiert; die fÅr jeden Compiler und
+jedes OS anderen Libs sind in einem eigenen Zip, das bisherige
+Source-Zip enthÑlt nur noch die tatsÑchlichen Sourcen und die
+Makefiles
+- CHG: ndbl: die Summery-Ausgaben beim Listen sind nicht mehr
+in der Ma·einheit Bytes, sondern je nach Grî·e mit 'K', 'M'
+oder 'G'
+
+0.6.6w (29-Jul-2004)
+- NEW: ndba, ndbe, ndbc: neue Packalgorithmen kînnen jetzt
+relativ leicht integriert werden; Tests mit zlib, BZip2,
+PPM und BriefLZ; PPM wird voraussichtlich zusÑtzlich
+integriert werden
+
+0.4.15 (27-Jun-2004)
+- FIX: ndba: zusÑtzlicher Check beim abschlie·enden Schreiben
+  der neuen Verwaltungsoptionen auf Schreibfehler, z.B. Platte
+  voll
+- FIX: ndbl: Grî·enangaben der Files im Chapter zwischen normaler
+  Anzeige und Raw-Modus synchronisiert
+- FIX: ndba: Summary-Zeile Åber Blîcke verga· die Blîcke von
+  mittels -cf/cc/cm als identisch ermittelten Files mitzuzÑhlen
+- CHG: ndbe: ohne Filemaske(n) wird "*" als Default benutzt
+- CHG: ndbe: Option -a erstellt keinen Batch mehr
+- NEW: ndbe: Option -b<von>-<bis> erstellt den Batch, der jetzt
+  ndb_convert.<bat|cmd|sh> hei·t und Kapitel fÅr Kapitel
+  konvertiert, d.h. an TemporÑrplatz reicht jetzt der Platz fÅr
+  ein Chapter
+- FIX: ndba: der Zeitstempel der Chapter aus dem Import-Batch
+  wurde um eine Stunde zu viel interpretiert
+- FIX: Designfehler im Handling der DataFiles entdeckt, der
+  u.U. ab 0.4.15RC5 (Abschneiden der DataFiles auf gespeicherte
+  LÑnge) auch ein StÅckchen echte Daten abschneidet.
+  -> Schnellreparatur durch Entfernen des Abschneidens
+- NEW: ndbe: Option -qd beantwortet Prompts mit Defaultantwort
+- FIX: ndbe: Option -p<pfad> hatte einen abschlie·enden (Back) Slash
+  auch bei '/' (Unix) und Pfaden wie 'c:\' (Win & OS/2) entfernt
+- CHG: wenn ndba wÑhrend des Archivierens abbricht, dann wird die
+  NDB-Main-Datei auf ihren vorherigen Wert gekÅrzt, der Archivheader
+  wird wieder mit den alten Werten Åberschrieben -> Rollback sicher-
+  gestellt
+- FIX: ndbl: Raw-Ausgabe gab fÅr die drei Datumswerte (Creation,
+  Modification, Last Access) jeder Datei immer den 1.1.1970 anstatt
+  der echten Werte aus
+- NEW: ndbe: "-i@<filename>: include all filemasks listed in <filename>"
+- NEW: ndbe: "-x@<filename>: exclude all filemasks listed in <filename>"
+- FIX: ndbl: wenn Archivname ohne .ndb angegeben wurde, wurde der
+  erste Kommandoparameter ?berschrieben
+- NEW: ndba: zusÑtzliche Ausgabe zu Beginn des Archivierens
+  ("Archiving into new [last] chapter %04d:")
+- CHG: ndba: beim Neuaufsetzen nach einem abgebrochenen
+  Archivierungslauf wird das letzte ursprÅngliche Data File
+  ggfs automatisch auf die frÅhere LÑnge abgeschnitten
+- FIX: ndba: Fehler im DataFile-Handling beim Neuaufsetzen
+  nach einem abgebrochenen Archivierungslauf behoben.
+- FIX: ndb_os2ea.c: Ñrgerlichen Fehler (if(pBufEAs != NULL)*;*)
+  behoben, war wahrscheinlich ohne Auswirkung
+- NEW: ndba, ndbe & ndbl geben beim Start Compiler, Version
+  und Compilierdatum aus
+- FIX: ndba: Checks beim Abspeichern der Blockheader, File Entries
+  und Data Files korrigieren Angaben in Chapter Header, falls
+  Differenzen gefunden
+- FIX: ndba: wenn das Archivieren einer Datei abgebrochen wird,
+  mÅssen deren schon bearbeitete Blîcke von der Blocksumme des
+  Chapters wieder abgezogen werden; andernfalls Einlesefehler
+  und Abbruch beim nÑchsten Archivierungslauf!
+- NEW: NDB speichert intern verwendete Codepage im Chapter
+- NEW: ndba & ndbe: beim Start werden DataFiles gecheckt, falls
+  Grî·e mit Headerwert nicht Åbereinstimmt, dann Frage an User, ob
+  File auf gespeicherten Wert gekÅrzt werden soll
+- FIX: ndba & ndbe: wenn ein neues DataFile erzeugt wird, wird
+  anfÑnglich dessen LÑnge auf 0 gesetzt, um Datenreste von abge-
+  brochenen ArchivierungslÑufen zu entfernen
+- NEW: ndbl: Option -lh zeigt nur CRC32 und Filenamen an
+- FIX: Unter Linux wurden Dateien >= 2 GB fÑlschlich als 'Character
+  Device' klassifiziert
+- FIX: Win32 & Linux: ndba zeigt bei Dateien >= 2GB jetzt korrekt
+  an, da· sie zu gro· fÅr NDB sind
+- NEW: ndba: Summary am Ende um Zahl der neuangelegten und der
+  wiederverwendeten Blîcke erweitert
+- FIX: ndbe: ndb_importall korrigiert, verwendet jetzt -R statt -r
+- NEW: ndb: Codepage UTF-8 aufgenommen
+- NEW: ndbe: neue Option -em (extract modified) entpackt nur die
+  geÑnderten Dateien des/der gewÑhlten Chapter
+- CHG: RÅckmeldungen der Funktionen zu Extradaten erweitert
+- CHG: ndba: Angleichung an zip.exe: falls purer Directory-Name als
+  Filemaske angegeben wurde, wird dieser selbst auch archiviert
+- CHG: Performance beim Erstellen der Dateiliste unter Linux deutlich
+  verbessert, falls die Filemasken nicht mit AnfÅhrungszeichen einge-
+  schlossen wurden, sondern per Shell expandiert wurden
+- FIX: Fehler im SymLink-Handling von Linux behoben
+- FIX: ndba: Endlosschleife behoben, falls Datei nicht soviel Bytes
+  enthÑlt wie vorher ermittelt; Ausgaben von ndba dazu verbessert
+- NEW: ndba: -cc vergleicht Dateien mit Dateien aus vorhergehendem
+  Chapter durch Erzeugen und Vergleichen der CRCs der Blîcke der
+  neuen Datei
+- FIX: ndba: nicht nur <archiv.ndb>, sondern ggfs auch <archiv.ndb_*>
+  von Archivierungsliste ausnehmen
+
+0.6.4 (20-Jun-2004)
+- FIX: ndbl: Grî·enangaben der Files im Chapter zwischen normaler
+  Anzeige und Raw-Modus synchronisiert
+- FIX: ndba: Summary-Zeile Åber Blîcke verga· die Blîcke von
+  mittels -cf/cc/cm als identisch ermittelten Files mitzuzÑhlen
+- CHG: ndbe: ohne Filemaske(n) wird "*" als Default benutzt
+- CHG: ndbe: Option -a erstellt keinen Batch mehr
+- NEW: ndbe: Option -b<von>-<bis> erstellt den Batch, der jetzt
+  ndb_convert.<bat|cmd|sh> hei·t und Kapitel fÅr Kapitel
+  konvertiert, d.h. an TemporÑrplatz reicht jetzt der Platz fÅr
+  ein Chapter
+- FIX: ndba: der Zeitstempel der Chapter aus dem Import-Batch
+  wurde um eine Stunde zu viel interpretiert
+- FIX: Designfehler im Handling der DataFiles entdeckt, der
+  u.U. ab 0.6.3 (Abschneiden der DataFiles auf gespeicherte
+  LÑnge) auch ein StÅckchen echte Daten abschneidet.
+  -> Schnellreparatur durch Entfernen des Abschneidens
+- NEW: ndbe: Option -qd beantwortet Prompts mit Defaultantwort
+- FIX: ndbe: Option -p<pfad> hatte einen abschlie·enden (Back) Slash
+  auch bei '/' (Unix) und Pfaden wie 'c:\' (Win & OS/2) entfernt
+- CHG: wenn ndba wÑhrend des Archivierens abbricht, dann wird die
+  NDB-Main-Datei auf ihren vorherigen Wert gekÅrzt, der Archivheader
+  wird wieder mit den alten Werten Åberschrieben -> Rollback sicher-
+  gestellt
+- FIX: ndbl: Raw-Ausgabe gab fÅr die drei Datumswerte (Creation,
+  Modification, Last Access) jeder Datei immer den 1.1.1970 anstatt
+  der echten Werte aus
+
+0.6.3p1 (08-Jun-2004)
+- FIX: ndba: Feature wieder entfernt, da Datenverlust mîglich aufgrund
+  eines Bugs seit 0.4.0 (beim Neuaufsetzen nach einem abgebrochenen
+  Archivierungslauf wird das letzte ursprÅngliche Data File ggfs
+  automatisch auf die frÅhere LÑnge abgeschnitten)
+
+0.6.3 (01-Jun-2004)
+- FIX: ndbl: Raw-Ausgabe gab fÅr die drei Datumswerte (Creation,
+  Modification, Last Access) jeder Datei immer den 1.1.1970 anstatt
+  der echten Werte aus
+- NEW: ndba: "-i@<filename>: include all filemasks listed in <filename>"
+- NEW: ndba: "-x@<filename>: exclude all filemasks listed in <filename>"
+- NEW: ndba: zusÑtzliche Ausgabe zu Beginn des Archivierens
+  ("Archiving into new [last] chapter %04d:")
+- CHG: ndba: beim Neuaufsetzen nach einem abgebrochenen
+  Archivierungslauf wird das letzte ursprÅngliche Data File
+  ggfs automatisch auf die frÅhere LÑnge abgeschnitten
+- FIX: ndba: Fehler im DataFile-Handling beim Neuaufsetzen
+  nach einem abgebrochenen Archivierungslauf behoben.
+
+0.6.2 (26.05.2004)
+- FIX: ndb_os2ea.c: Ñrgerlichen Fehler (if(pBufEAs != NULL)*;*)
+  behoben, war wahrscheinlich ohne Auswirkung
+- NEW: OS/2 & Win32: alle 4 NDB-Exes lassen sich mit dem
+  Open Watcom 1.2 kompilieren und debuggen, passende zlibs
+  fÅr Watcom liegen jetzt bei
+- NEW: ndba, ndbe & ndbl geben beim Start Compiler, Version
+  und Compilierdatum aus
+- CHG: ndba: Win32: ôffnen und Lesen der Originalfiles Åber
+  Win32-Api mit Win32-Flags und Privilegien, um seltener
+  mit 'Access forbidden' o.Ñ. abgewiesen zu werden.
+- FIX: ndba: Checks beim Abspeichern der Blockheader, File Entries
+  und Data Files korrigieren Angaben in Chapter Header, falls
+  Differenzen gefunden
+- FIX: ndba: wenn das Archivieren einer Datei abgebrochen wird,
+  mÅssen deren schon bearbeitete Blîcke von der Blocksumme des
+  Chapters wieder abgezogen werden; andernfalls Einlesefehler
+  und Abbruch beim nÑchsten Archivierungslauf!
+- FIX: ndba: Fehler behoben in: nicht nur <archiv.ndb>, sondern ggfs
+  auch <archiv.ndb_*> von Archivierungsliste ausnehmen
+- NEW: NDB speichert intern verwendete Codepage im Chapter
+- NEW: ndba: Linux kann Files >= 2GB archivieren
+- CHG: ndba: Lesen der Originaldatei von FILE *file auf int file
+  umgestellt, damit beim ôffnen der Datei O_LARGEFILE mit angegeben
+  werden kann (nîtig fÅr Linux)
+- FIX: vergessene Funktion ndb_chap_removeFileFromHash() fertig-
+  kodiert
+- FIX: ndba & ndbe: wenn ein neues DataFile erzeugt werden soll,
+  aber eine Datei dieses Namens bereits auf Platte existiert, wird
+  diese Datei zuerst gelîscht.
+- NEW: ndba & ndbe: CRC16-Checks fÅr File- & DataFileheader ebenfalls
+  eingebaut
+
+0.4.15w (29.05.2004)
+énderungen der 0.6.2w Åbernommen, soweit sie nicht auf dem
+geÑnderten Datenformat basieren
+- NEW: ndba: "-i@<filename>: include all filemasks listed in <filename>"
+- NEW: ndba: "-x@<filename>: exclude all filemasks listed in <filename>"
+- FIX: ndbl: wenn Archivname ohne .ndb angegeben wurde, wurde der
+  erste Kommandoparameter Åberschrieben
+- NEW: ndba: zusÑtzliche Ausgabe zu Beginn des Archivierens
+  ("Archiving into new [last] chapter %04d:")
+- CHG: ndba: beim Neuaufsetzen nach einem abgebrochenen
+  Archivierungslauf wird das letzte ursprÅngliche Data File
+  ggfs automatisch auf die frÅhere LÑnge abgeschnitten
+- FIX: ndba: Fehler im DataFile-Handling beim Neuaufsetzen
+  nach einem abgebrochenen Archivierungslauf behoben.
+- FIX: ndb_os2ea.c: Ñrgerlichen Fehler (if(pBufEAs != NULL)*;*)
+  behoben, war wahrscheinlich ohne Auswirkung
+- NEW: ndba, ndbe & ndbl geben beim Start Compiler, Version
+  und Compilierdatum aus
+- FIX: ndba: Checks beim Abspeichern der Blockheader, File Entries
+  und Data Files korrigieren Angaben in Chapter Header, falls
+  Differenzen gefunden
+- FIX: ndba: wenn das Archivieren einer Datei abgebrochen wird,
+  mÅssen deren schon bearbeitete Blîcke von der Blocksumme des
+  Chapters wieder abgezogen werden; andernfalls Einlesefehler
+  und Abbruch beim nÑchsten Archivierungslauf!
+- NEW: NDB speichert intern verwendete Codepage im Chapter
+- NEW: ndba & ndbe: beim Start werden DataFiles gecheckt, falls
+  Grî·e mit Headerwert nicht Åbereinstimmt, dann Frage an User, ob
+  File auf gespeicherten Wert gekÅrzt werden soll
+- FIX: ndba & ndbe: wenn ein neues DataFile erzeugt wird, wird
+  anfÑnglich dessen LÑnge auf 0 gesetzt, um Datenreste von abge-
+  brochenen ArchivierungslÑufen zu entfernen
+- NEW: ndbl: Option -lh zeigt nur CRC32 und Filenamen an
+- FIX: Unter Linux wurden Dateien >= 2 GB fÑlschlich als 'Character
+  Device' klassifiziert
+- FIX: Win32 & Linux: ndba zeigt bei Dateien >= 2GB jetzt korrekt
+  an, da· sie zu gro· fÅr NDB sind
+- NEW: ndba: Summary am Ende um Zahl der neuangelegten und der
+  wiederverwendeten Blîcke erweitert
+- FIX: ndbe: ndb_importall korrigiert, verwendet jetzt -R statt -r
+- NEW: ndb: Codepage UTF-8 aufgenommen
+- NEW: ndbe: neue Option -em (extract modified) entpackt nur die
+  geÑnderten Dateien des/der gewÑhlten Chapter
+- CHG: RÅckmeldungen der Funktionen zu Extradaten erweitert
+- CHG: ndba: Angleichung an zip.exe: falls purer Directory-Name als
+  Filemaske angegeben wurde, wird dieser selbst auch archiviert
+- CHG: Performance beim Erstellen der Dateiliste unter Linux deutlich
+  verbessert, falls die Filemasken nicht mit AnfÅhrungszeichen einge-
+  schlossen wurden, sondern per Shell expandiert wurden
+- FIX: Fehler im SymLink-Handling von Linux behoben
+- FIX: ndba: Endlosschleife behoben, falls Datei nicht soviel Bytes
+  enthÑlt wie vorher ermittelt; Ausgaben von ndba dazu verbessert
+- NEW: ndba: -cc vergleicht Dateien mit Dateien aus vorhergehendem
+  Chapter durch Erzeugen und Vergleichen der CRCs der Blîcke der
+  neuen Datei
+- FIX: ndba: nicht nur <archiv.ndb>, sondern ggfs auch <archiv.ndb_*>
+  von Archivierungsliste ausnehmen
+
+0.6.1 (14.05.2004)
+- FIX: ndba: nicht nur <archiv.ndb>, sondern ggfs auch <archiv.ndb_*>
+  von Archivierungsliste ausnehmen
+- NEW: ndba & ndbe: beim Start werden DataFiles gecheckt, falls
+  Grî·e mit Headerwert nicht Åbereinstimmt, dann Frage an User, ob
+  File auf gespeicherten Wert gekÅrzt werden soll
+- FIX: ndba & ndbe: wenn ein neues DataFile erzeugt wird, wird
+  anfÑnglich dessen LÑnge auf 0 gesetzt, um Datenreste von abge-
+  brochenen ArchivierungslÑufen zu entfernen
+- NEW: ndbl: Option -lh zeigt nur MD5 und Filenamen an
+- CHG: ndbl: Layout an 10-stellige FilelÑngen angepa·t
+- NEW: ndba & ndbe: CRC16-Checks fÅr Archiv-, Chapter- und Block-
+  header eingebaut
+- NEW: ndba: Win32: Files mit mehr als 4GB kînnen archiviert werden
+- NEW: ndbe: Win32 & Linux: Files Åber 2/4GB kînnen entpackt werden
+- CHG: ndbe: Schreiben der Originaldatei von FILE *file auf int file
+  umgestellt, damit beim Erzeugen der Datei O_LARGEFILE mit angegeben
+  werden kann
+
+0.6.0 (08.05.2004)
+DatenstrukturÑnderungen:
+- NEW: FilelÑnge original und komprimiert jetzt ULONG8
+- NEW: CRC16-Felder fÅr alle Verwaltungsdatenstrukturen vorgesehen
+- NEW: CRC32 fÅr gesamtes File durch MD5 abgelîst
+Funktionen:
+- NEW: ndba: -cm vergleicht Dateien mit Dateien aus vorhergehendem
+  Chapter durch Erzeugen und Vergleichen des MD5-Hashes
+- NEW: ndb: Codepage UTF-8 aufgenommen
+- NEW: ndbe: neue Option -em (extract modified) entpackt nur die
+  geÑnderten Dateien des/der gewÑhlten Chapter
+
+0.5.4 (01.05.2004)
+- NEW: ndba: -cc vergleicht Dateien mit Dateien aus vorhergehendem
+  Chapter durch Erzeugen und Vergleichen der CRCs der Blîcke der
+  neuen Datei
+- NEW: ndba: Summary am Ende um Zahl der neuangelegten und der
+  wiederverwendeten Blîcke erweitert
+- FIX: ndbe: ndb_importall korrigiert, verwendet jetzt -R statt -r
+- FIX: OS/2: ndba: Crash beim Einlesen der Extradaten repariert
+  (falscher Zeiger durch C&P von Win32-énderungen)
+- CHG: Konsolenausgabe beim Archivieren oder Entpacken Åber-
+  arbeitet
+- NEW: Win32: ndba lÑ·t sich mit dem Open Watcom 1.2 kompilieren
+  und debuggen, zlib fÅr Watcom gebaut
+- NEW: OS/2: ndba lÑ·t sich mit dem Open Watcom 1.2 kompilieren
+  und debuggen, zlib fÅr Watcom fehlt noch
+- NEW: Win32: Check auf Dateisystem (NTFS oder FAT) eingebaut
+  (Setzen der 8.3-Kurznamen geht nur unter XP & NTFS)
+- FIX: Win32: Fehler beim Setzen der NTFS Security (bei Directories)
+  behoben
+
+0.5.3 (22.04.2004)
+- NEW: Win32: ndbe kann den 8.3-Kurznamen unter WinXP & NTFS auch
+  wieder korrekt setzen. (Api-Funktion erst ab XP und nur fÅr NTFS!
+  :-( Warnung dazu beim Start von ndbe mit OS != WinXP
+- CHG: XP-Api-Funktion zum Setzen des 8.3-Kurznamens wird dynamisch
+  aus DLL geladen -> keine unterschiedlichen Exes fÅr XP und
+  OS != XP mehr
+- CHG: RÅckmeldungen der Funktionen zu Extradaten erweitert
+- CHG: Konsolenausgabe beim Archivieren oder Entpacken von Extradaten
+  prÑzisiert
+- CHG: ndba: Angleichung an zip.exe: falls purer Directory-Name als
+  Filemaske angegeben wurde, wird dieser selbst auch archiviert
+- CHG: Performance beim Erstellen der Dateiliste unter Linux deutlich
+  verbessert, falls die Filemasken nicht mit AnfÅhrungszeichen einge-
+  schlossen wurden, sondern per Shell expandiert wurden
+- FIX: Fehler im SymLink-Handling von Linux behoben
+- FIX: ndba: Endlosschleife behoben, falls Datei nicht soviel Bytes
+  enthÑlt wie vorher ermittelt; Ausgaben von ndba dazu verbessert
+
+0.5.2 (15.04.2004)
+- NEW: Win32: ndba packt den 8.3.-Kurznamen mit ins Archiv, falls er
+  sich vom langen Namen unterscheidet. Entpacken funktioniert noch
+  nicht. ;-> DLL-Aufruf wird mitelinkt, deshalb zwei Exes fÅr XP und
+  OS != XP nîtig
+- CHG: Umorganisation des Aufbaus der Filenamenliste fÅrs Archivieren
+- CHG: Fehlerbehebung und Umorganisieren der Funktionen fÅrs Lesen
+  und Setzen der Extradaten eines Files (erstmals 2 Extradaten pro
+  File mîglich)
+- CHG: Fehlerbehebung und Umorganisieren der Funktionen fÅrs Lesen
+  der Extradaten aus dem Archivfile
+- CHG: ndba: Verhalten an zip.exe angeglichen: ohne -r bzw -R werden
+  die obersten Subdirectory-EintrÑge mitarchiviert.
+
+0.5.1 (09.04.2004)
+- NEW: ndba: "-i@<filename>: include all filemasks listed in <filename>"
+- NEW: ndba: "-x@<filename>: exclude all filemasks listed in <filename>"
+- CHG: ndbe: bei -p<path>: Fehlermeldung, falls <path> leer;
+  ggfs Slash am Ende entfernen
+- CHG: ndbe: das bei -a automatisch erzeugte Importskript enthÑlt
+  jetzt -w5 statt -w100
+- FIX: ndbe: falls File auf Platte noch nicht existierte, wurde
+  fÑlschlicherweise trotzdem ein unlink() versucht
+- CHG: ndbe bekommt flexibleren Parser von ndba
+- NEW: ndba ... -om ... [modified only] fertig implementiert;
+  noch genauer zu testen
+- CHG: ndba: mi·verstÑndliche Ausgabe am Ende "could not archive extra
+  data of following ..." geÑndert
+- NEW: ndbe: warnende Ausgabe, falls Archiv bîsartige Filenamen enthÑlt;
+  TODO: Abfrage mit Abbruch- und Skipmîglichkeit einbauen
+- CHG: alle strftime(...)-Aufrufe mit Test, ob Åbergebene tim-Struktur
+  ungleich NULL
+- NEW: ndb_os2ea.c: bei Fehlern in GetEAs() wird ein Remark fÅr den
+  FileEntry Åbergeben, der von ndb_archive in der Schlu·liste
+  angezeigt wird
+
+0.4.14 (06-Apr-2004)
+alle énderungen der 0.5.x-Linie (bis auf DateiformatÑnderung) Åbernommen:
+- NEW: ndba: "-i@<filename>: include all filemasks listed in <filename>"
+- NEW: ndba: "-x@<filename>: exclude all filemasks listed in <filename>"
+- NEW: ndbe: warnende Ausgabe, falls Archiv bîsartige Filenamen enthÑlt;
+  Abfrage, ob diese Datei trotzdem entpackt oder Åbersprungen werden soll
+- NEW: ndba ... -om ... [modified only] fertig implementiert;
+  noch genauer zu testen
+- NEW: ndbc: Parser setzt ggfs fÅr DataFile-Grî·e Minimum oder Maximum ein
+- NEW: ndb_os2ea.c: bei Fehlern in GetEAs() wird ein Remark fÅr den
+  FileEntry Åbergeben, der von ndb_archive in der Schlu·liste
+  angezeigt wird
+- NEW: Routinen zu TIME_PERFORMANCE eingebaut und lauffÑhig gemacht;
+  damit kann man (bisher unter Win32 & OS/2) die Laufzeit von
+  Funktionen sehr genau messen und zum Programmende folgende
+  Daten ausgeben: Zahl der Aufrufe, Gesamtzeit, durchschnittliche
+  Zeit, Maximalzeit
+- CHG: ndbe: bei -p<path>: Fehlermeldung, falls <path> leer;
+  ggfs Slash am Ende entfernen
+- CHG: ndbe bekommt flexibleren Parser von ndba
+- CHG: ndba: mi·verstÑndliche Ausgabe am Ende "could not archive extra
+  data of following ..." geÑndert
+- CHG: alle strftime(...)-Aufrufe mit Test, ob Åbergebene tim-Struktur
+  ungleich NULL; d.h. kein Fehler mehr bei korrupten Datumswerten
+- CHG: ndba & ndbe: Usage-Ausgabe (bei -h) verbessert
+- FIX: ndba: Option -l geht wieder, Null-Zeiger in ndb_chapterfuncs.c
+  repariert
+- FIX: ndbe: falls File auf Platte noch nicht existierte, wurde
+  fÑlschlicherweise trotzdem ein unlink() versucht
+
+0.5.0 (25.03.2004)
+- wegen DatenformatsÑnderungen (indexCRC im  Archiv- und DataFile-
+  Chunk, 2x Flags in jedem Chunk, 4 Bytes pro Blockheader weniger)
+  öbergang auf 0.5.x
+- identCRC-Check scharfgeschaltet: bei der Erstellung eines Archivs
+  wird aus dem Dateinamen, der Erstellungszeit und der NDB-Version
+  ein CRC32-Wert erzeugt, der auch in allen DataFiles mit abgespeichert
+  wird; die Gleichheit dieses Wertes sichert, da· NDB nicht mit
+  falschen DataFiles Amok lÑuft (z.B. durch Umbenennungen)
+- FIX: ndba: Option -l geht wieder, Null-Zeiger in ndb_chapterfuncs.c
+  repariert
+- ndbc: Parser setzt ggfs fÅr DataFile-Grî·e Minimum oder Maximum ein
+- ndba & ndbe: Usage-Ausgabe verbessert
+- Routinen zu TIME_PERFORMANCE eingebaut und lauffÑhig gemacht;
+  damit kann man (bisher unter Win32 & OS/2) die Laufzeit von
+  Funktionen sehr genau messen und zum Programmende folgende
+  Daten ausgeben: Zahl der Aufrufe, Gesamtzeit, durchschnittliche
+  Zeit, Maximalzeit
+
+0.4.13 (25-Mar-2004)
+- FIX: ndba: Option -l geht wieder, Null-Zeiger in ndb_chapterfuncs.c
+  repariert
+- FIX: ndbl & ndbe: bei fehlerhaftem Datumswert in Chaptererzeugung
+  gab es einen Absturz; jetzt wird ein Fehlertext bzw Pseudodatum
+  erzeugt.
+
+0.4.12 (18-Mar-2004)
+- ndb_extract.c: NDB kann beim Entpacken endlich schreibgesch?tzte
+  Dateien ?berschreiben
+- Betriebssystemermittlung in ndb_win32_getWindowsVersion()
+  korrigiert (W2K wurde als WinXP angezeigt)
+- ndb_<os>util.c: diverse Fehler im Zusammenhang mit ndb_<os>_split()
+  und ndb_<os>_makeFileList() bei Filemasken mit unterschiedlichsten
+  Pfaden behoben
+- ndb_dffuncs.c: Z(nderungen in ndb_<os>_makeFileList() f?r DF-Funktionen
+  ?bernommen
+- ndb_archive: falschen Wert f?r 'written ...' behoben,
+  d.h. Data Files werden jetzt mitgez"hlt
+- bzip2-Library getestet - 1% Platzersparnis gegen?ber 200% Zeit
+  -> nicht nutzen
+- Performance-Tests: Ausgabe systematisiert am Programmende
+- ndb_list.c: zu Debug-Zwecken kann man zu jedem File die
+  Blockliste mitausgeben lassen
+
+0.4.11p1 (09-Mar-2004)
+- Fehler in ndb_[os]util.c behoben: bei Filemasken der Form 'c:\*'
+  wurden nur Inhalte des aktuellen Directories gesichert, falls man
+  NDB aus einem Unterverzeichnis von 'c:\' heraus gestartet hatte
+  (d.h. 'c:\*' wurde wie 'c:*' behandelt)
+- Fehler in zwei der vier Main-Module behoben: falls der Archivname
+  ohne '.ndb' angegeben wurde, wurde beim AnfÅgen das nÑchste Kommando-
+  zeilenargument in Teilen Åberschrieben
+
+0.4.11 (04-Mar-2004)
+- ndb_crc32.c entfernt; die Funktion ndb_crc32() nutzt jetzt
+  die zlib und sitzt in ndb_utilfuncs_base.c
+- alle OS auf zlib 1.2.1 umgestellt
+- zu Files mit Sourcecode von Info-ZIP die Lizenz von Info-ZIP
+  hinzugefÅgt
+- ndb_extract: scanne zu entpackende Files nach Pfadanteilen,
+  diese werden im Chapter gesucht und ebenfalls mit action =
+  NDB_ACTION_EXTRACT gekennzeichnet; die 2. Entpackschleife
+  entpackt (d.h. setzt Metadaten und Extradaten) dann nur
+  gekennzeichnete Directories
+- Fehler in ndb_extract behoben: öberschreibetest prÅfte bisher
+  auch auf Files, die gar nicht entpackt werden sollten
+- ndbe fehlertoleranter gemacht:
+  - falls die Archivdatei hinten abgeschnitten wurde, gibt
+    NDB eine Meldung aus und kann auf die vollstÑndigen
+    Chapter uneingeschrÑnkt zugreifen.
+  - falls die gepackten Daten eines Blockes beschÑdigt wurden,
+      bricht NDB nicht mehr ab, sondern schreibt einen Dummy-
+    Block (Null-Bytes) mit gleicher LÑnge
+
+0.2.17p1 (23-Feb-2004)
+- Check in ndb_file_checkattributes() aus 0.4.10 Åbernommen
+
+0.4.10 (26-Feb-2004)
+- mit Profiling gespielt: Funktion ndb_list_addToFileList()
+  war bei wiederholtem Archivieren mit -cf der grî·te Zeitfresser;
+  lineare Suche auf Hash-Feld umgestellt bringt Faktor 3 bei
+  > 10000 Files
+- Check in ndb_file_checkattributes() eingebaut, ob File aus
+  altem Chapter "koscher" ist, d.h. genÅgend Blocks fÅr seine
+  Filegrî·e aufweist; andernfalls schleppt sich bei -cf ein Fehler
+  von Chapter zu Chapter weiter
+
+0.2.17 (15-Feb-2004):
+-GPL-Header in alle Quelltexte eingefÅgt, GPL- und Info-Zip-
+ Lizenz hinzugefÅgt
+- Fehler bei leeren Chaptern behoben
+
+0.4.9 (12-Feb-2004):
+- GPL-Lizenz und GPL-Hinweise in Sourcen eingefÅgt
+- ndb_archive.c: falls keine zu archivierenden Files gefunden
+  werden, bricht ndba mit Fehlermeldung ab
+- ndb_chapfuncs.c: Allocation Error bei leeren Chaptern behoben
+- ndb_extract.c & ndb_osdep.c: Importbatch wird jetzt auch
+  fÅr Linux korrekt erzeugt
+- ndb_list.c:
+  - zusÑtzlicher Parameter -lc: nur geÑnderte Dateien listen
+  - Ausgaben von -ls, -lm & -ll umgebaut und durchsystematisiert
+
+0.4.8 (04-Feb-2004):
+- Bug in ndb_extract.c: Option -o (overwrite all) wurde gar nicht
+  berÅcksichtigt
+- Feinschliff von ndb_filefound mit Hashsuche
+- Umschaltung zwischen linearer Suche und Hashtable Åber ndb.h:
+  #define USE_HASHTABLE_CRC_FILENAMES
+
+0.2.16p4 (03-Feb-2004):
+- Bug in ndb_extract.c: Option -o (overwrite all) wurde gar nicht
+  berÅcksichtigt
+
+0.4.7 (03-Feb-2004):
+- ndb_filefound von linearer Suche auf Nachschlagen in Hashtabelle
+  umgestellt -> schneller ab 10-20 Files im Chapter, extrem bei viel
+  Files (Gesamtzeit bei etwa 3300 Files 9 ms gegenÅber 580 ms;
+  gemessen auf P4 2.4GHz)
+- heftigen Bug zufÑllig entdeckt (und behoben): bei ndba .. -cf
+  wurden nichtgefundene Files mit 0 Bytes abgespeichert
+- Bug: bei externen Datenfiles wird beim Anlegen eines 2. oder
+  hîheren Chapters das Datafile mit der "Nahtstelle" zwischen dem
+  vorherigen und dem aktuellen Chapter korrumpiert (Zip-Daten
+  wurden ab Fileposition 0x0 geschrieben)
+  Workaround eingebaut, da letztendlicher Fehler noch offen
+
+0.2.16p3 (02-Feb-2004):
+- Bugfix zu ndba .. -cf aus 0.4.7w Åbernommen
+  wurden nichtgefundene Files mit 0 Bytes abgespeichert
+
+0.4.6 (30-Jan-2004):
+- Fehler in ndb_list.c bei der Ausgabe mittels -la behoben
+- kleine Optimierung in ndb_fe_ndb_file_filefound()
+- Fehler in der Grî·enberechnung des Archiv-Chapters behoben
+- UnterstÅtzung von symbolischen Links eingebaut; erste Tests
+  sehen ganz gut aus
+- Archiv- und DataFiles-Chunk: identCRC (ULONG; CRC aus Name, Version,
+  Uhrzeit) wird in beiden Chunktypen erzeugt. Sobald dieses Feld (jetzt
+  noch TRANS) mit abgespeichert wird, kann NDB damit erkennen, ob eine
+  NDB-Main-Datei und Data Files zusammengehîren (auch wenn sie
+  umbenannt werden)
+
+0.4.5 (20-Jan-2004):
+
+- Linux: Block- und Char-Devices werden ebenso wie Fifos und Sockets
+  bereits in ndb_unix_makeFileList() herausgefiltert -> kein HÑngen-
+  bleiben beim Archivieren mehr
+- Bug in ndb_nt.c beseitigt: unter manchen UmstÑnden wurde versucht,
+  ein Char-Array auf dem Stack mit free() freizugeben
+- Bug in ndb_df_getReadWriteHandle beseitigt: File îffnen mit "w+b",
+  falls File neu, und mit "r+b", falls bereits vorhanden
+- Bug in ndb_archive beim Erzeugen des ersten DataFiles beseitigt
+  (Startgrî·e wurde falsch gesetzt)
+- DataFileHeader: Starttest, ob alle nîtigen Extrafiles vorhanden
+  und gÅltig (richtiger Magic, richtige Grî·e, richtiger NDB Main
+  File Name) sind
+
+0.4.4 (17-Jan-2004):
+
+- Fehler in ndb_utf8 bei codepage=NULL behoben (fÅhrte zu
+  sigsev, falls NDBA als Cron Job lief);
+  ndb_osdep liefert als codepage ggfs nicht mehr NULL, sondern
+  "" zurÅck
+- sprintf(..) durch snprintf(..) in allen Sourcen ersetzt
+- Variablendefinitionen an den Funktionsanfang verlagert, damit
+  Sourcen wieder von gcc 2.95.x Åbersetzbar werden
+- bei ndb_extract.c -p<pfad_to_extract> eingebaut, um nicht nur
+  ins aktuelle Directory entpacken zu kînnen (nachher wichtig
+  fÅrs Java-GUI)
+- in ndb_archive.c und ndb_extract.c Check auf Existenz des NDB-
+  Files vorverlegt, damit nicht erst -zig Vorarbeiten erledigt
+  werden, bevor ein Fehlen der Archivdatei festgestellt wird
+
+0.2.16p1 (02-Jan-2004):
+
+- Strippen von Laufwerksangaben, absoluten Pfaden und UNC-
+  Pfaden aus 0.4.3 Åbernommen
+
+0.4.3 (02-Jan-2004):
+
+- Strippen von Laufwerksangaben, absoluten Pfaden und UNC-
+  Pfaden Åberarbeitet bzw eingebaut
+- bei Fehlern beim Archivieren der Extradaten werden die
+  entsprechenden Files wieder am Schlu· richtig angezeigt
+- Fehler im Handling der Extradatenheader bzw des dazugehîrigen
+  Fileflags behoben
+- zusÑtzliche KonsistenzprÅfung zwischen Fileflag und Extradaten-
+  header
+- DataFile-Handling Åberarbeitet: mehrere, teils heftige Bugs
+  beseitigt, zusÑtzliche Checks, u.a. beim Schliessen eines
+  DataFiles
+
+0.4.2 (28-Dez-2003):
+
+- NDB auf Linux portiert: Linux-spezifische File Attribute wie
+  UID/GID und Owner-/Group-/World-Rechte werden in einem kleinen
+  Extradatenheader mit z.Zt. 8 Byte Direct Data mitgefÅhrt
+
+0.4.1 (25-Dez-2003):
+
+- ndb_list bzw ndb_filefunctions: Ausgabe fÅr ndbl -ll noch fertig
+  systematisiert (Extrazeile fÅr jeden ExtraDataHeader), -lm
+  ergibt eine Summenzeile fÅr alle Extraheader, falls vorhanden
+
+0.4.0 (22-Dez-2003):
+
+- NDB auf ausgelagerte Datenfiles erweitert, um die 2GB-Grenze
+  zu sprengen
+- ULONG8-Felder eingefÅhrt fÅr alle Grî·en, die ggfs 32 Bit
+  Åberschreiten (Archiv- und Chapterfelder)
+- manche Felder verdoppelt, eines fÅrs NDB-Main-File, das
+  zweite fÅr alle NDB-Files
+- DataFileHeader: NDBMainName in Pfad und Dateiname auftrennen,
+  beim Erzeugen der anderen Namen Pfad mit berÅcksichtigen, aber
+  nicht abspeichern
+- Chapterstruktur um Feld 'codepage' erweitert
+- ndb_list: nie gebrauchte Debugausgaben fÅr -ll ersetzt durch
+  verlÑngerte tabellarische Ausgaben
+
+0.3.2 (11-Dez-2003):
+
+- einige Tests und Fixes; es sind aber noch viel mehr Tests
+  nîtig!
+- aufgrund DatenstrukturÑnderungen fÅr 2GB-Grenze öbergang
+  auf 0.4.x
+
+0.3.1 (06-Dez-2003):
+
+- NT Security-Descriptoren mitarchivieren und entpacken
+
+0.3.0 (06-Dez-2003):
+
+- den bisherigen festen ExtraData-Teil der FileEntry-Struktur
+  durch eine Liste von Extradata-Headern ersetzt
+- an jedem Chapterende Felder fÅr zusÑtzliche FileHeader-Strukturen
+  (fÅr jede neu gebrauchte Datendatei im Chapter)
+- Chapterstruktur um Feld fÅr NDB-Version erweitert
+
+0.2.16 (02-Dez-2003):
+
+- in ndb_extract.c Sortierung der Directories (analog zu unzip)
+  vor Setzen der EAs und Fileattribute eingebaut
+
+0.2.15 (30-Nov-2003):
+
+- énderung im Rawmodus von NDBList:
+        - Zeile fÅr Archivdatei selbst beginnt mit "A:"
+        - Zeile fÅr Chapter beginnt mit "C:"
+        - Zeile fÅr File beginnt mit "F:"
+
+0.2.14 (20-Nov-2003):
+
+- OS/2: Fehler beim Setzen von EAs - schlÑgt fehl, falls File
+        auf ReadOnly gesetzt ist. Abhilfe wie Unzip: erst EAs setzen,
+        dann File-Attribute
+
+- rudimentÑres Java-Swing GUI "NDBExplorer" angefangen, zur Zeit
+        als extra Projekt
+
+- fÅr das Java-Swing-Gui "Raw"-Mode fÅr Ausgabe NDBList eingebaut:
+        ndbl <datei.ndb> -lr : gibt pro Chapter eine Zeile in Spezial-
+                               format aus
+        ndbl <datei.ndb> -lr -c<chapters> : gibt pro File im angegebenen
+                               Chapter eine Zeile in Spezialformat aus
+
+0.2.13 (07-Nov-2003):
+
+- NDBList: Raw-Mode fÅr Ausgabe implementiert; damit sind maschinelle
+        Weiterverarbeitungen der Ausgabe bequem(er) mîglich
+
+0.2.12 (06-Nov-2003):
+
+- Fehlerbehebung: ndb_os2_makeFileList() mu· ndb_os2_opendir()
+        mit doHidden (nicht doDirs) aufrufen, damit System- und Hidden-
+        files miterfasst werden.
+- Fehlerbehebung: ndb_expandExtraStream(): falls die Funktion
+        ndb_osdep_setExtraData() fehlschlÑgt, wurde in Fehlermeldung
+        auf NULL-Variable pBlock zugegriffen -> SIGSEV
+- Fehlerbehebung: ndb_block_dumpblock(): Hexdump stellt jetzt
+        auch ASCII-Zeichen korrekt dar
+- ndb_extract: Extrahieren in zwei Schleifen aufgeteilt; in der
+        ersten werden nur die Files angelegt (die evtl nîtigen Ober-
+        directories werden automatisch angelegt), in der zweiten werden
+        den erzeugten Directories die Attribute und Extradaten angelegt.
+
+0.2.11 (31-Okt-2003):
+
+- ndb_extract.c: Option -X, um Extradaten ggfs nicht zu entpacken
+- ndb_extract.c & ndb_listrout.c: Include- und Exclude-Filemasken
+        jetzt in einer Liste, zeitliche Reihenfolge bleibt somit erhalten
+
+0.2.10 (30-Okt-2003):
+
+- ndb_osdep.c: Die Routinen zur Erzeugung des Batchfiles
+        ndb_importall.cmd|bat benutzen jetzt <datei.ndb>_new,
+        damit man den Export- und Importvorgang bei einer Version-
+        konvertierung in mehreren Happen durchlaufen kann;
+        ebenso "if not exist <datei-ndb>_new ndbc <datei-ndb>_new",
+        damit nur beim ersten Happen die neue NDB-Datei erzeugt wird
+- ndb_create.c: Parameter -f fÅr DatafileSize aufgenommen
+- ndb_list.c: Auflistung Chapter: Chaptername ans Zeilenende,
+        damit das Layout bei lÑngeren Namen nicht so zerrissen wird
+- EXE-Grî·e von ndbcreate halbiert durch Linken nur weniger
+        Objectdateien; dafÅr ndb_iofuncs.c aufgeteilt in .._base.c
+        und .._ext.c und énderung von ndb_utilfuncs.c
+
+0.2.9 (21-Okt-2003):
+
+- zusÑtzliche Ausgaben am Ende von ndb_archive.c:
+        gelesene Filebytes, geschriebene Bytes, Dauer,
+        jeweils KBytes pro Sekunde
+
+0.2.8p1 (16-Okt-2003):
+
+- Filenamenmatching unter OS/2 und Win32 nochmal korrigiert,
+        Matching jetzt grundsÑtzlich zwischen vollem Dateinamen (+ Pfad)
+        und voller Filemaske (+ Pfadanteile)
+
+0.2.7 (14-Okt-2003):
+
+- Filenamenmatching unter OS/2 und Win32 ÅberprÅft,
+        falls Wildcard in Pfad, wird andere Matchfunktion benutzt
+- Win32: fÅr Ausgabe von Filenamen EMXWIN32CONVERT() in ndb_extract
+        eingebaut
+- ndb_list.c: Summenzeile nach Listenausgabe angefÅgt
+- PrÅfung auf leere Directories eingebaut
+- Optionen auf Case Sensivity geÑndert
+- Option -r: leere Directories ignorieren
+- Option -R: auch leere Directories archivieren
+
+0.2.6 (26-Aug-2003):
+
+- Defaultblockgrî·e bei ndbcreate jetzt 60KB
+- kleine Fehler behoben
+- Flag NDB_FILEFLAG_IDENTICAL eingefÅhrt
+- Win32: fÅr Ausgabe von Filenamen OEM2Ansi() in ndbarchive
+        und ndbextract eingebaut
+
+0.2.5 (18-Aug-2003):
+
+- Filematching mit Wildcards Åberarbeitet: Pfade dÅrfen jetzt
+        auch Wildcards enthalten
+
+0.2.4 (10-Aug-2003):
+
+- Filemasken gehen immer auf filenameExt
+- verlorengegangene Option '-c-<chap_no>' fÅr NDBList wieder
+  eingebaut ab 0.1.12
+- EAs-Test: Partition mit Test-eCS erzeugt, mit NDB gesichert,
+  neu formatiert, wieder entpackt, neu gebootet -
+  voila, Test-eCS bootet erfolgreich
+
+0.2.3 (07-Aug-2003):
+
+- ndbextract.exe: neue Option -t: test archiv integrity
+- EAs fÅr ein CMD-File und einen Ordner erfolgreich geprÅft
+
+0.2.2 (05-Aug-2003):
+
+- UTF-8-Routinen systematisiert und getestet; jetzt ndb_utf8_inittables()
+  mit Ausgaben, falls Codepage nicht eingebaut, oder CP1252 statt CP1004
+- UTF-8-RÅckwandlung zu Codepage gibt in der Codepage fehlende TF-8-Werte
+  in der Form '_%<hex>_' aus
+- UTF8: Konvertierung in High-Level-Routinen verschoben
+
+0.2.1 (04-Aug-2003):
+
+- interne Abspeicherung der Filenamen in UTF-8
+- Codepages CP437, CP850, CP1252, ISO-8859-1, ISO-8859-15, US-ASCII
+- UTF8: korrekte Konvertierung fÅr Unicode-Werte > 0x800 eingebaut
+- UTF8-RÅckwandlung: bei undefinierten Zeichen _%xxxx_ einfÅgen
+- Struktur fileentry um filenameUTF8 und filenameExt aufbohren
+- Funktionen makeFilenameExt() und makeFilenameUTF8() anpassen
+- DataFileSize in Archive-Chunk einfÅgen (0 = alles in einem File)
+
+0.1.13 (21-Jul-2003):
+
+- Funktion -cf checken: entpackte, unverÑnderte Dateien werden jetzt
+  auch komplett entpackt (vorher LÑnge 0 Bytes)
+
+- NDBCreate.exe: Entpacken mit -a(ll) berÅcksichtigte den Defaultpfad
+  'Chap%04d' nicht und behauptete fÑlschlich, Files (ohne chap%04d')
+  zu Åberschreiben
+
+0.1.12 (20-Jul-2003):
+
+- NDBList.exe: -c-<nr> zÑhlt rÅckwÑrts, d.h. -c-0 zeigt letzten Chapter
+
+- Test, ob File existiert, erweitern, damit keine Doppelarbeit nîtig
+  ndb_fileexist(NULL) oder ndb_fileexist(&stat)
+
+- auch in NDBExtract.exe auf öberschreiben prÅfen: yes, no, All, None
+  zur leichteren Entscheidungsfindung bei beiden Kandidaten Uhrzeit
+  und Grî·e angeben (deshalb gleich stat()-Ergebnis in ndb_fileexist()
+  nutzen)
+
+
+0.1.11 (15-Jul-2003):
+
+- ominîsen Fehler bei ndba ... -cf und gro·en Verzeichnissen -
+  hoffentlich - behoben
+- Profiling entdeckt und ausprobiert. Ergebnis:
+  ndba erstmalig - fast 60% in zlib-Routinen
+  ndba auf selben Daten - 95% in ndb_list_addToFileList und
+  ndb_file_filefound
+- bisherige Wildcard-Match-Routine ersetzen:
+  jetzt c-Routine von Florian Schintke unter GPL
+- Directories bei der Ausgabe mit ndblist.exe durch einen
+  '/' am Namensende kenntlich machen
+
+
+0.1.10 (14-Jul-2003):
+
+- ndb_list.c: option -la einfÅgen ("list allocation"),
+  zeigt fÅr alle Chapter tabellarisch:
+- Grî·e Chapter
+- Grî·e BinÑrdaten
+- Grî·e Blockheader-Liste
+- Grî·e Fileentry-Liste
+
+
+0.1.9 (11-Jul-2003):
+
+- ndb_archive.c beim Einlesen der Blockheader optimieren: bisher
+  mu· jeder Block der Chapter > 0 beim Eintragen in die Block-
+  Hashtabelle auf Gleichheit mit den bisherigen Blîcken verglichen
+  werden. Bei wiederholtem Sichern des gleichen Datenbestandes
+  kommt das dauernd vor!
+  -> deshalb schon beim Abspeichern der Blockheader Flags entsprechend
+  setzen, da· Block, der nicht in Block-Hash-Tabelle steht, identisch
+  mit vorhandenen Blîcken ist und nicht erneut verglichen werden mu·.
+
+
+0.1.8 (10-Jul-2003):
+
+- Blockgrî·enÅberprÅfung bei NDBC eingebaut
+
+- ndb_archive.c: "updating archive inventory" vorm Schreiben der
+  endgÅltigen Chunks (+ Bemerkung in readme: Archivfile wird
+  nicht korrupt, falls NDB vorher abbricht oder abgebrochen wird)
+
+- perror() durch strerror() ersetzt
+- Remark-Feld in FileHeader einfÅgt, mit strerror() gefÅllt
+        und am Schlu· von archive/extract mit anzeigt
+
